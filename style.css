@@ -123,3 +123,34 @@ input[type="button"]:hover {
     background: white; /* Change background to white */
     color: black; /* Change text to black */
 }
+
+
+/* Pomodoro Timer Styles */
+.pomodoro-timer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#timerDisplay {
+    font-size: 3em;
+    font-weight: bold;
+    margin: 10px;
+}
+
+button {
+    font-size: 1.2em;
+    padding: 10px 15px;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+}
+
+button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+button:active {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
