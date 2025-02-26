@@ -118,7 +118,7 @@ const affirmations = [
     "Hans just got his greencard",
     "Ammon has received a promotion!",
     "Holly adopt a capybara",
-    "Julian becomes professional violinist",
+    "Julian becomes a professional violinist",
     "Tingyo is piloting an Airbus A330",
     "Qianqian loves you all"
 ];
