@@ -1,4 +1,4 @@
-/* function setRandomBackground() {
+function setRandomBackground() {
     const backgrounds = [
         "url('images/background1.png')",
         "url('images/background2.png')",
@@ -19,67 +19,7 @@
 }
 
 // Run the function when the page loads
-window.onload = setRandomBackground; */
-
-const backgrounds = [
-    "images/background1.png",
-    "images/background2.png",
-    "images/background3.png",
-    "images/background4.png",
-    "images/background5.png"
-];
-
-// Function to determine brightness of an image
-function getImageBrightness(imageSrc, callback) {
-    let img = document.createElement("img");
-    img.crossOrigin = "Anonymous"; // Avoid CORS issues
-    img.src = imageSrc;
-    img.onload = function () {
-        let canvas = document.createElement("canvas");
-        let ctx = canvas.getContext("2d");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0, img.width, img.height);
-
-        let imageData = ctx.getImageData(0, 0, img.width, img.height);
-        let pixels = imageData.data;
-        let brightness = 0;
-
-        for (let i = 0; i < pixels.length; i += 4) {
-            let r = pixels[i];
-            let g = pixels[i + 1];
-            let b = pixels[i + 2];
-            brightness += (r + g + b) / 3; // Average RGB
-        }
-
-        brightness /= pixels.length / 4; // Get average brightness
-        callback(brightness);
-    };
-}
-
-// Function to set a random background and adjust text color
-function setRandomBackground() {
-    const randomIndex = Math.floor(Math.random() * backgrounds.length);
-    const selectedBackground = backgrounds[randomIndex];
-    document.body.style.backgroundImage = `url('${selectedBackground}')`;
-
-    // Check brightness of the image and set text color accordingly
-    getImageBrightness(selectedBackground, (brightness) => {
-        if (brightness < 128) {
-            // Dark background → White text
-            document.body.style.color = "white";
-            document.querySelectorAll("li, input, button").forEach(el => el.style.color = "white");
-        } else {
-            // Light background → Black text
-            document.body.style.color = "black";
-            document.querySelectorAll("li, input, button").forEach(el => el.style.color = "black");
-        }
-    });
-}
-
-// Run the function when the page loads
-window.onload = setRandomBackground;
-
+window.onload = setRandomBackground; 
 
 
 function addTask () {
