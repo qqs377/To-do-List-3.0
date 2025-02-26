@@ -52,10 +52,10 @@ document.getElementById("input").addEventListener("keypress", function(event) {
 });
 
 // cross out after done task
-function markDone (item) {
+function markDone(item) {
     item.classList.toggle("finished");
+    showAffirmation(); // Call the showAffirmation function when a task is marked as done
 }
-
 //delete to remove tasks
 function remove (item) {
     // remove item completely from document
@@ -146,10 +146,5 @@ function showAffirmation() {
     }, 2000); // Time before the affirmation disappears (2 seconds)
 }
 
-// Modify markDone function to show affirmation when task is marked as done
-function markDone(item) {
-    item.classList.toggle("finished");
-    showAffirmation(); // Call the showAffirmation function when a task is marked as done
-}
 
 
