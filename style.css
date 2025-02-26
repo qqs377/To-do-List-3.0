@@ -1,3 +1,60 @@
+/*center header*/
+
+#myHeader {
+    text-align: center; /* Center the text */
+    color: white; /* Make text white */
+    margin-top: 20px; /* Add spacing from the top */
+}
+
+
+/* make input side by side */
+.input-container {
+    display: flex; /* Use flexbox */
+    align-items: center; /* Align items vertically */
+    gap: 10px; /* Space between input and button */
+}
+
+#input {
+    flex-grow: 1; /* Allow input to take up remaining space */
+    padding: 10px;
+    font-size: 1em;
+}
+
+/* Style the input field */
+input[type="text"] {
+    font-size: 18px;
+    width: 80%;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    margin-bottom: 10px;
+}
+
+/* Style buttons */
+input[type="button"] {
+    font-size: 1.2em;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Add button */
+#addButton {
+    color: white; /* White text */
+    background-color: transparent; /* Transparent background */
+    border: 2px solid white; /* Thin white border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 10px 15px; /* Padding for better spacing */
+    font-size: 1em; /* Readable font size */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: 0.3s ease-in-out; /* Smooth transition */
+}
+
+/* Add hover effect for better UX */
+#addButton:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* Slight white transparency on hover */
+}
 
 /* remove indentation of list items */
 
@@ -7,14 +64,13 @@ ul {
 
 
 /* remove traditional bullet from front of list items */
-
+/*
 li {
   list-style-type: none;
   background-color: #eee;
   border: 1px solid #c3c3c3;
   padding: 10px 0px 10px 5px;
-}
-
+} */
 
 
 .done {
@@ -38,11 +94,20 @@ input[type="text"] {
   padding: 10px;
 }
 
+/* Style for all buttons (Add, Check, Delete) */
 input[type="button"] {
-  font-size: 1.2em;
-  margin: -6px 4px 0px 0px;
+    color: white; /* White text */
+    background: transparent; /* Transparent background */
+    border: 2px solid white; /* Thin white border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 8px 12px; /* Adjust padding for better size */
+    font-size: 1.2em; /* Make text slightly larger */
+    cursor: pointer; /* Change cursor to pointer */
+    transition: 0.3s ease-in-out; /* Smooth hover effect */
 }
 
-#addButton {
-  padding: 10px;
+/* Hover effect */
+input[type="button"]:hover {
+    background: white; /* Change background to white */
+    color: black; /* Change text to black */
 }
