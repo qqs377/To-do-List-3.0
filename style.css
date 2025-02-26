@@ -1,3 +1,13 @@
+body {
+    background-image: url('your-image-url.jpg'); /* Change to your image path */
+    background-color: black;
+    background-size: cover; /* Cover entire screen */
+    background-position: center; /* Center image */
+    background-repeat: no-repeat; /* Do not repeat */
+    font-family: Arial, sans-serif; /* Keep it readable */
+    color: white; /* Ensure text is readable */
+}
+
 /*center header*/
 
 #myHeader {
