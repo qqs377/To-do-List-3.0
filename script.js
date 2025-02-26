@@ -1,3 +1,19 @@
+const backgrounds = [
+    "url('images/background1.png')",
+    "url('images/background2.png')",
+    "url('images/background3.png')",
+    "url('images/background4.png')",
+    "url('images/background5.png')"
+];
+
+// Function to set a random background
+function setRandomBackground() {
+    const randomIndex = Math.floor(Math.random() * backgrounds.length);
+    document.body.style.backgroundImage = backgrounds[randomIndex];
+}
+
+// Run the function when the page loads
+window.onload = setRandomBackground;
 
 
 function addTask () {
