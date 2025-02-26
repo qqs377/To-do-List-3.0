@@ -1,3 +1,5 @@
+
+
 function addTask () {
     var input = document.getElementById("input");
     // get current text from input field
