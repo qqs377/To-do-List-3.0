@@ -1,4 +1,4 @@
-const backgrounds = [
+/* const backgrounds = [
     "url('images/background1.png')",
     "url('images/background2.png')",
     "url('images/background3.png')",
@@ -13,8 +13,18 @@ function setRandomBackground() {
 }
 
 // Run the function when the page loads
-window.onload = setRandomBackground;
+window.onload = setRandomBackground; */
 
+function setRandomBackground() {
+    const randomIndex = Math.floor(Math.random() * backgrounds.length);
+    document.body.style.backgroundImage = backgrounds[randomIndex];
+    document.body.style.backgroundColor = "#000";  // Add fallback in case images don't load
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundPosition = "center";
+}
+
+// Run the function when the page loads
+window.onload = setRandomBackground;
 
 function addTask () {
     var input = document.getElementById("input");
