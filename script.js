@@ -15,10 +15,6 @@ function setRandomBackground() {
     document.body.style.backgroundPosition = "center";
     document.body.style.backgroundRepeat = "no-repeat";
 
-    // Additional CSS styling
-    document.body.style.fontFamily = "Arial, sans-serif";    // Set font family
-    document.body.style.color = "white";  
-
     console.log("Background set to:", selectedBackground);
 }
 
