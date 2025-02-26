@@ -107,3 +107,49 @@ function resetPomodoro() {
 }
 
 
+
+// List of affirmation words
+const affirmations = [
+    "Leah becomes a well-known artist!",
+    "Jordan is living her awesome life",
+    "Is that Yejun?",
+    "Jennifer earned her 1M dollars",
+    "Link is a millionaire now",
+    "Hans just got his greencard",
+    "Tingyo is piloting an Airbus A330"
+];
+
+// Function to get a random affirmation
+function getRandomAffirmation() {
+    const randomIndex = Math.floor(Math.random() * affirmations.length);
+    return affirmations[randomIndex];
+}
+
+// Display affirmation message
+function showAffirmation() {
+    const affirmationText = getRandomAffirmation();
+    
+    // Create the affirmation element
+    const affirmationElement = document.createElement('div');
+    affirmationElement.classList.add('affirmation');
+    affirmationElement.textContent = affirmationText;
+
+    // Add the affirmation to the body (or a specific container)
+    document.body.appendChild(affirmationElement);
+
+    // Set a timeout to remove the affirmation after 2 seconds
+    setTimeout(() => {
+        affirmationElement.classList.add('fadeOut'); // Trigger fade-out animation
+        setTimeout(() => {
+            affirmationElement.remove(); // Remove element after fade-out
+        }, 1000); // Time for the fade-out effect
+    }, 2000); // Time before the affirmation disappears (2 seconds)
+}
+
+// Modify markDone function to show affirmation when task is marked as done
+function markDone(item) {
+    item.classList.toggle("finished");
+    showAffirmation(); // Call the showAffirmation function when a task is marked as done
+}
+
+
