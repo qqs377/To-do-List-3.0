@@ -119,7 +119,8 @@ const affirmations = [
     "Ammon has received a promotion!",
     "Holly adopt a capybara",
     "Julian becomes professional violinist",
-    "Tingyo is piloting an Airbus A330"
+    "Tingyo is piloting an Airbus A330",
+    "Qianqian loves you all"
 ];
 
 // Function to get a random affirmation
