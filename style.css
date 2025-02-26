@@ -154,3 +154,50 @@ button:active {
     background-color: rgba(255, 255, 255, 0.4);
 }
 
+
+/* Style for affirmation words */
+.affirmation {
+    position: fixed;  /* Fixed positioning to show it anywhere on the screen */
+    top: 20%; /* Position it near the top */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Center horizontally with transform */
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.8); /* Black background */
+    color: white;
+    font-size: 24px;
+    border-radius: 10px;
+    z-index: 9999; /* Ensure it's on top of other elements */
+    opacity: 1;
+    text-align: center;
+    animation: fadeIn 1s ease-in-out; /* Fade-in effect */
+}
+
+/* Animation for fade-in */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Animation for fade-out */
+.fadeOut {
+    animation: fadeOut 1s ease-in-out; /* Fade-out effect */
+}
+
+/* Animation for fade-out */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px); /* Move it slightly up while fading */
+    }
+}
+
+
