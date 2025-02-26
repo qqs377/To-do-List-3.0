@@ -54,3 +54,48 @@ function remove (item) {
     item.remove();
 }
 
+// pomodoro
+
+let pomodoroTimer;
+let isRunning = false;
+let remainingTime = 25 * 60; // 25 minutes in seconds
+let isBreakTime = false; // Switch between work and break
+
+function updateTimerDisplay() {
+    let minutes = Math.floor(remainingTime / 60);
+    let seconds = remainingTime % 60;
+    document.getElementById("timerDisplay").textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+}
+
+function startPomodoro() {
+    if (isRunning) return; // If already running, do nothing
+
+    isRunning = true;
+    pomodoroTimer = setInterval(function() {
+        remainingTime--;
+        updateTimerDisplay();
+
+        if (remainingTime <= 0) {
+            clearInterval(pomodoroTimer);
+            isRunning = false;
+            isBreakTime = !isBreakTime; // Switch between work and break
+            remainingTime = isBreakTime ? 5 * 60 : 25 * 60; // 5 minutes break or 25 minutes work
+            alert(isBreakTime ? "Take a break!" : "Back to work!");
+            startPomodoro(); // Start next session (work/break)
+        }
+    }, 1000);
+}
+
+function pausePomodoro() {
+    clearInterval(pomodoroTimer);
+    isRunning = false;
+}
+
+function resetPomodoro() {
+    clearInterval(pomodoroTimer);
+    isRunning = false;
+    remainingTime = 25 * 60; // Reset to 25 minutes work time
+    updateTimerDisplay();
+}
+
+
