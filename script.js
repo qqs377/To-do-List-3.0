@@ -16,15 +16,28 @@ function setRandomBackground() {
 window.onload = setRandomBackground; */
 
 function setRandomBackground() {
+    const backgrounds = [
+        "url('images/background1.png')",
+        "url('images/background2.png')",
+        "url('images/background3.png')",
+        "url('images/background4.png')",
+        "url('images/background5.png')"
+    ];
+
     const randomIndex = Math.floor(Math.random() * backgrounds.length);
-    document.body.style.backgroundImage = backgrounds[randomIndex];
-    document.body.style.backgroundColor = "#000";  // Add fallback in case images don't load
+    const selectedBackground = backgrounds[randomIndex];
+
+    document.body.style.backgroundImage = selectedBackground;
     document.body.style.backgroundSize = "cover";
     document.body.style.backgroundPosition = "center";
+    document.body.style.backgroundRepeat = "no-repeat";
+
+    console.log("Background set to:", selectedBackground);
 }
 
 // Run the function when the page loads
 window.onload = setRandomBackground;
+
 
 function addTask () {
     var input = document.getElementById("input");
