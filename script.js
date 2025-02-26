@@ -43,6 +43,14 @@ function addTask () {
     }
 }
 
+// make keyboard enter/return equivalent to add button
+
+document.getElementById("input").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {  // Check if Enter key is pressed
+        addTask();
+    }
+});
+
 // cross out after done task
 function markDone (item) {
     item.classList.toggle("finished");
