@@ -154,10 +154,10 @@ function showAffirmation() {
 
 // Music files stored in the GitHub folder "music/"
 const musicFiles = [
-    "music/song1.mp3",
-    "music/song2.mp3",
-    "music/song3.mp3",
-    "music/song4.mp3"
+    "To-do-List/music/song1.mp3",
+    "To-do-List/music/song2.mp3",
+    "To-do-List/music/song3.mp3",
+    "To-do-List/music/song4.mp3"
 ];
 
 // Select a random song
