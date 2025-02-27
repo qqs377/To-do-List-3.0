@@ -1,3 +1,5 @@
+//randomly choose background from the following
+
 function setRandomBackground() {
     const backgrounds = [
         "url('images/background1.png')",
@@ -23,6 +25,40 @@ function setRandomBackground() {
 window.onload = setRandomBackground; 
 
 
+// Function to load tasks from localStorage
+function loadTasks() {
+    var tasks = JSON.parse(localStorage.getItem("tasks")) || []; // Get tasks or use empty array if nothing is saved
+    tasks.forEach(function(task) {
+        var item = document.createElement("li");
+        item.innerHTML = '<input type="button" class="done" onclick="markDone(this.parentNode)"  value="&#x2713;" /> ' + 
+                         '<input type="button" class="remove" onclick="remove(this.parentNode)" value="&#x2715;" /> ' + 
+                         task.text;
+
+        // Mark task as done if applicable
+        if (task.done) {
+            item.classList.add("finished"); // Add "finished" class if the task was marked as done
+        }
+
+        document.getElementById("tasks").appendChild(item);
+    });
+}
+
+// Function to save tasks to localStorage
+function saveTasks() {
+    var tasks = [];
+    var taskItems = document.querySelectorAll("#tasks li");
+    taskItems.forEach(function(item) {
+        var taskText = item.textContent.trim(); // Get task text, ignoring buttons
+        var isDone = item.classList.contains("finished"); // Check if the task is marked as done
+
+        tasks.push({ text: taskText, done: isDone }); // Save both text and state
+    });
+    localStorage.setItem("tasks", JSON.stringify(tasks)); // Save tasks array in localStorage
+}
+
+
+// User adding task to the to-do list
+
 function addTask () {
     var input = document.getElementById("input");
     // get current text from input field
@@ -39,8 +75,13 @@ function addTask () {
         document.getElementById("tasks").appendChild(item); 
 
       
-  input.value='';
-  input.placeholder='enter next task...'
+        input.value='';
+        input.placeholder='enter next task...'
+
+        
+        // Save updated tasks list
+        saveTasks();
+        
     }
 }
 
@@ -56,12 +97,17 @@ document.getElementById("input").addEventListener("keypress", function(event) {
 function markDone(item) {
     item.classList.toggle("finished");
     showAffirmation(); // Call the showAffirmation function when a task is marked as done
+    saveTasks(); // Save the updated tasks
 }
 //delete to remove tasks
 function remove (item) {
     // remove item completely from document
     item.remove();
 }
+
+window.onload = function() {
+    loadTasks();
+};
 
 // pomodoro
 
