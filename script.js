@@ -209,7 +209,7 @@ function drawFFT() {
         const barHeight = dataArray[i] / 2;
         
             // Set the fill color to black for the bars
-            ctx.fillStyle = "black";
+            ctx.fillStyle = "white";
             ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
 
             // Set the stroke color to white for the edges
