@@ -154,12 +154,11 @@ function showAffirmation() {
 
 // Music files stored in the GitHub folder "music/"
 const musicFiles = [
-    "https://raw.githubusercontent.com/qqs377/To-do-List/main/music/song1.mp3",
-    "https://raw.githubusercontent.com/qqs377/To-do-List/main/music/song2.mp3",
-    "https://raw.githubusercontent.com/qqs377/To-do-List/main/music/song3.mp3",
-    "https://raw.githubusercontent.com/qqs377/To-do-List/main/music/song4.mp3"
+    "music/song1.mp3",
+    "music/song2.mp3",
+    "music/song3.mp3",
+    "music/song4.mp3"
 ];
-
 
 // Select a random song
 const randomSong = musicFiles[Math.floor(Math.random() * musicFiles.length)];
