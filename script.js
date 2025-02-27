@@ -198,17 +198,25 @@ function drawFFT() {
     requestAnimationFrame(drawFFT);
     analyser.getByteFrequencyData(dataArray);
 
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+    // Transparent background
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+    
     const barWidth = (canvas.width / bufferLength) * 2.5;
     let x = 0;
 
     for (let i = 0; i < bufferLength; i++) {
         const barHeight = dataArray[i] / 2;
-        ctx.fillStyle = `rgb(${barHeight + 100}, 50, 200)`;
-        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-        x += barWidth + 1;
+        
+            // Set the fill color to black for the bars
+            ctx.fillStyle = "black";
+            ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+            // Set the stroke color to white for the edges
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 1; // Set the edge thickness
+            ctx.strokeRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+            x += barWidth + 1;
     }
 }
 
