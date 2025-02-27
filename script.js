@@ -170,6 +170,48 @@ audioPlayer.load(); // Load the song
 audioPlayer.play(); // Auto-play when page loads
 
 
+// --- FOURIER TRANSFORM VISUALIZATION ---
+const canvas = document.getElementById("fftCanvas");
+const ctx = canvas.getContext("2d");
+
+// Web Audio API setup
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const analyser = audioContext.createAnalyser();
+const source = audioContext.createMediaElementSource(audioPlayer);
+source.connect(analyser);
+analyser.connect(audioContext.destination);
+
+// Configure analyser
+analyser.fftSize = 2048;
+const bufferLength = analyser.frequencyBinCount;
+const dataArray = new Uint8Array(bufferLength);
+
+// Draw the frequency spectrum
+function drawFFT() {
+    requestAnimationFrame(drawFFT);
+    analyser.getByteFrequencyData(dataArray);
+
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const barWidth = (canvas.width / bufferLength) * 2.5;
+    let x = 0;
+
+    for (let i = 0; i < bufferLength; i++) {
+        const barHeight = dataArray[i] / 2;
+        ctx.fillStyle = `rgb(${barHeight + 100}, 50, 200)`;
+        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+        x += barWidth + 1;
+    }
+}
+
+// Start visualization when audio plays
+audioPlayer.onplay = () => {
+    audioContext.resume();
+    drawFFT();
+};
+
+
 
 
 
