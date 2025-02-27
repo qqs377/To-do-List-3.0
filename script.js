@@ -154,10 +154,10 @@ function showAffirmation() {
 
 // Music files stored in the GitHub folder "music/"
 const musicFiles = [
-    "https://qqs377.github.io/To-do-List/music/song1.mp3",
-    "https://qqs377.github.io/To-do-List/music/song2.mp3",
-    "https://qqs377.github.io/To-do-List/music/song3.mp3",
-    "https://qqs377.github.io/To-do-List/music/song4.mp3"
+    "https://raw.githubusercontent.com/qqs377/To-do-List/main/music/song1.mp3",
+    "https://raw.githubusercontent.com/qqs377/To-do-List/main/music/song2.mp3",
+    "https://raw.githubusercontent.com/qqs377/To-do-List/main/music/song3.mp3",
+    "https://raw.githubusercontent.com/qqs377/To-do-List/main/music/song4.mp3"
 ];
 
 
