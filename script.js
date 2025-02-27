@@ -47,6 +47,11 @@ function saveTasks() {
         var taskText = item.textContent.trim(); // Get task text, ignoring buttons
         var isDone = item.classList.contains("finished"); // Check if the task is marked as done
 
+        // check and remove "sample" task
+        if (taskText !== "All Slab techs start locking in (˵ •̀ ᴗ - ˵ ) ✧") {
+            tasks.push({ text: taskText, done: isDone }); // Save both text and state
+        }
+    });
         tasks.push({ text: taskText, done: isDone }); // Save both text and state
     });
     localStorage.setItem("tasks", JSON.stringify(tasks)); // Save tasks array in localStorage
