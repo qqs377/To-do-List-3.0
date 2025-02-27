@@ -169,6 +169,7 @@ audioPlayer.src = randomSong;
 audioPlayer.load(); // Load the song
 audioPlayer.play(); // Auto-play when page loads
 
+
 // --- FOURIER TRANSFORM VISUALIZATION ---
 const canvas = document.getElementById("fftCanvas");
     canvas.width = window.innerWidth;  // Make the canvas span the full width
@@ -198,25 +199,17 @@ function drawFFT() {
     requestAnimationFrame(drawFFT);
     analyser.getByteFrequencyData(dataArray);
 
-    // Transparent background
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-    
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     const barWidth = (canvas.width / bufferLength) * 2.5;
     let x = 0;
 
     for (let i = 0; i < bufferLength; i++) {
         const barHeight = dataArray[i] / 2;
-        
-            // Set the fill color to black for the bars
-            ctx.fillStyle = "black";
-            ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-
-            // Set the stroke color to white for the edges
-            ctx.strokeStyle = "white";
-            ctx.lineWidth = 1; // Set the edge thickness
-            ctx.strokeRect(x, canvas.height - barHeight, barWidth, barHeight);
-
-            x += barWidth + 1;
+        ctx.fillStyle = `rgb(${barHeight + 100}, 50, 200)`;
+        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+        x += barWidth + 1;
     }
 }
 
