@@ -172,12 +172,12 @@ audioPlayer.play(); // Auto-play when page loads
 
 // --- FOURIER TRANSFORM VISUALIZATION ---
 const canvas = document.getElementById("fftCanvas");
-    canvas.width = window.innerWidth;  // Make the canvas span the full width
-    canvas.height = 150; // Set a fixed height for the canvas (adjust as needed)
+    //canvas.width = window.innerWidth;  // Make the canvas span the full width
+    //canvas.height = 150; // Set a fixed height for the canvas (adjust as needed)
 
 // Resize the canvas if the window size changes
-    window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth; // Re-adjust the width
+    //window.addEventListener('resize', () => {
+    //canvas.width = window.innerWidth; // Re-adjust the width
 });
 
 const ctx = canvas.getContext("2d");
