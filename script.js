@@ -99,6 +99,7 @@ function markDone(item) {
 function remove (item) {
     // remove item completely from document
     item.remove();
+    saveTasks();
 }
 
 
