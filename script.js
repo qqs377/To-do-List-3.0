@@ -21,10 +21,6 @@ function setRandomBackground() {
     console.log("Background set to:", selectedBackground);
 }
 
-// Run the function when the page loads
-window.onload = setRandomBackground; 
-
-
 // Function to load tasks from localStorage
 function loadTasks() {
     var tasks = JSON.parse(localStorage.getItem("tasks")) || []; // Get tasks or use empty array if nothing is saved
@@ -105,8 +101,11 @@ function remove (item) {
     item.remove();
 }
 
+
+// Run both functions when the page loads
 window.onload = function() {
-    loadTasks();
+    setRandomBackground();  // Set random background
+    loadTasks();            // Load tasks from localStorage
 };
 
 // pomodoro
