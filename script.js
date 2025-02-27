@@ -212,6 +212,7 @@ audioPlayer.onplay = () => {
 };
 
 
+audioPlayer.load();  // Ensure audio is loaded
 
 
 
