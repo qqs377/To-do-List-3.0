@@ -11,7 +11,7 @@
 
 <body>
     
-<h1 id="myHeader">TO DO List</h1>
+    <h1 id="myHeader">TO DO List</h1>
     
 <hr>
   
@@ -31,31 +31,37 @@
     All Slab techs start locking in (˵ •̀ ᴗ - ˵ ) ✧
   </li>
   
-    </ul>
-<hr>
+</ul>
     
- <hr>
+<hr>    
+<hr>
 
-    <!-- Pomodoro Timer Section -->
+<!-- Pomodoro Timer Section -->
     <div class="pomodoro-timer">
         <h2>Pomodoro Timer</h2>
-        <div id="timerDisplay">25:00</div>
-        <button id="startBtn" onclick="startPomodoro()">Start</button>
-        <button id="pauseBtn" onclick="pausePomodoro()">Pause</button>
-        <button id="resetBtn" onclick="resetPomodoro()">Reset</button>
+            <div id="timerDisplay">25:00</div>
+                <button id="startBtn" onclick="startPomodoro()">Start</button>
+                <button id="pauseBtn" onclick="pausePomodoro()">Pause</button>
+                <button id="resetBtn" onclick="resetPomodoro()">Reset</button>
     </div>
 
-    <hr>
-    <hr>
-  <div class="music-player">
-  <h2>Music Player</h2>
+<hr>
+<hr>
 
-    <p><canvas id="fftCanvas"></canvas></p>
-    <p><audio id="audioPlayer" controls></audio></p>
+<!-- stft Music Player Section -->
+  <div class="music-player">
+      <h2>Music Player</h2>
+
+        <p><canvas id="fftCanvas"></canvas></p>
+        <p><audio id="audioPlayer" controls></audio></p>
   </div>
-  <hr>
+    
+<hr>
+    
     <script src="script.js"></script>
+    
 </body>
+    
 </html>
 
     
