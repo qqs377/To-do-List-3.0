@@ -208,11 +208,12 @@ const musicFiles = [
     "music/404_患者_byLinkFu.mp3",
     "music/Computers_have_taken_over_the_world_byLinkFu.mp3",
     "music/Corporate_Slave_byLinkFu.mp3",
-    "music/Final_Project_for_EGMT_byLinkFu.mp3"
-    "music/Iron_Heart_Demo_byLinkFu.mp3"
-    "music/Midnight_Drive_byLinkFu.mp3"
-    "music/The_fall_of_the_god_of_all_liars_byLinkFu.mp3"
-    "music/compressed_tomorrow_byLinkFu.mp3"
+    "music/Final_Project_for_EGMT_byLinkFu.mp3",
+    "music/Iron_Heart_Demo_byLinkFu.mp3",
+    "music/Midnight_Drive_byLinkFu.mp3",
+    "music/The_fall_of_the_god_of_all_liars_byLinkFu.mp3",
+    "music/compressed_tomorrow_byLinkFu.mp3",
+    "music/Itai_byLinkFu.mp3",
     "music/rawr_byLinkFu.mp3"
 ];
 
