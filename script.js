@@ -210,7 +210,6 @@ const musicFiles = [
     "music/Corporate_Slave_byLinkFu.mp3",
     "music/Final_Project_for_EGMT_byLinkFu.mp3"
     "music/Iron_Heart_Demo_byLinkFu.mp3"
-    "music/Itai_byLinkFu.mp3"
     "music/Midnight_Drive_byLinkFu.mp3"
     "music/The_fall_of_the_god_of_all_liars_byLinkFu.mp3"
     "music/compressed_tomorrow_byLinkFu.mp3"
