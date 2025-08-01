@@ -27,7 +27,7 @@
     <input type="button" class="done" onclick="markDone(this.parentNode)" value="&#x2713;" />
     <input type="button" class="remove" onclick="remove(this.parentNode)" value="&#x2715;" />
     <span class="task-content">
-        <strong>Sample User:</strong> All Slab techs start locking in (˵ •̀ ᴗ - ˵ ) ✧
+        <strong>Slab Techs:</strong> All Slab techs start locking in (˵ •̀ ᴗ - ˵ ) ✧
     </span>
   </li>
   
@@ -45,6 +45,23 @@
     </div>
 <hr>
 <hr>
+
+<!-- Message Board Section -->
+<div class="message-board">
+    <h2>Message Board</h2>
+    <div class="message-input-container">
+        <input type="text" id="messageNameInput" placeholder="your name..." />
+        <input type="text" id="messageInput" placeholder="leave a message..." />
+        <button id="postMessageBtn" onclick="postMessage()">Post</button>
+    </div>
+    <div class="messages-canvas" id="messagesCanvas">
+        <!-- Messages will be displayed here -->
+    </div>
+</div>
+
+<hr>
+<hr>
+    
 <!-- stft Music Player Section -->
   <div class="music-player">
       <h2>Music by Link Fu</h2>
