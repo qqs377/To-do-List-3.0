@@ -176,6 +176,19 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById("input").focus();
         }
     });
+
+    // Message board keyboard events
+    document.getElementById("messageInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            postMessage();
+        }
+    });
+
+    document.getElementById("messageNameInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            document.getElementById("messageInput").focus();
+        }
+    });
 });
 
 // Cross out after done task
@@ -202,10 +215,144 @@ async function remove(item) {
     item.remove();
 }
 
+// Function to load messages from Supabase
+async function loadMessages() {
+    try {
+        const { data: messages, error } = await supabase
+            .from('messages')
+            .select('*')
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        // Clear existing messages
+        const messagesCanvas = document.getElementById("messagesCanvas");
+        messagesCanvas.innerHTML = '';
+
+        messages.forEach(function(message) {
+            createMessageElement(message);
+        });
+    } catch (error) {
+        console.error('Error loading messages:', error);
+    }
+}
+
+// Function to create a message element
+function createMessageElement(message) {
+    const messagesCanvas = document.getElementById("messagesCanvas");
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message-item');
+    messageDiv.dataset.messageId = message.id;
+    
+    // Random position for canvas-like effect
+    const randomX = Math.random() * 80; // 0-80% to keep within bounds
+    const randomY = Math.random() * 80; // 0-80% to keep within bounds
+    
+    messageDiv.style.position = 'absolute';
+    messageDiv.style.left = randomX + '%';
+    messageDiv.style.top = randomY + '%';
+    
+    // Random colors for visual variety
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    
+    messageDiv.innerHTML = `
+        <div class="message-content" style="background-color: ${randomColor};">
+            <div class="message-author">${message.user_name}</div>
+            <div class="message-text">${message.message_text}</div>
+            <div class="message-time">${new Date(message.created_at).toLocaleString()}</div>
+            <button class="delete-message" onclick="deleteMessage('${message.id}', this.parentNode.parentNode)">×</button>
+        </div>
+    `;
+    
+    messagesCanvas.appendChild(messageDiv);
+}
+
+// Function to save message to Supabase
+async function saveMessageToSupabase(userName, messageText) {
+    try {
+        const { data, error } = await supabase
+            .from('messages')
+            .insert([
+                {
+                    user_name: userName,
+                    message_text: messageText
+                }
+            ])
+            .select();
+
+        if (error) throw error;
+        return data[0];
+    } catch (error) {
+        console.error('Error saving message:', error);
+        throw error;
+    }
+}
+
+// Function to delete message from Supabase
+async function deleteMessageFromSupabase(messageId) {
+    try {
+        const { error } = await supabase
+            .from('messages')
+            .delete()
+            .eq('id', messageId);
+
+        if (error) throw error;
+    } catch (error) {
+        console.error('Error deleting message:', error);
+    }
+}
+
+// Function to post a new message
+async function postMessage() {
+    const nameInput = document.getElementById("messageNameInput");
+    const messageInput = document.getElementById("messageInput");
+    const userName = nameInput.value.trim();
+    const messageText = messageInput.value.trim();
+
+    // Validate inputs
+    if (userName === "" || messageText === "") {
+        alert("Please enter both your name and a message!");
+        return;
+    }
+
+    // Check message length
+    if (messageText.length > 200) {
+        alert("Message too long! Please keep it under 200 characters.");
+        return;
+    }
+
+    try {
+        // Save to Supabase
+        const savedMessage = await saveMessageToSupabase(userName, messageText);
+
+        // Create and display the message
+        createMessageElement(savedMessage);
+
+        // Clear inputs
+        messageInput.value = '';
+        messageInput.placeholder = 'leave another message...';
+
+    } catch (error) {
+        console.error('Failed to post message:', error);
+        alert('Failed to post message. Please try again.');
+    }
+}
+
+// Function to delete a message
+async function deleteMessage(messageId, messageElement) {
+    if (confirm('Delete this message?')) {
+        await deleteMessageFromSupabase(messageId);
+        messageElement.remove();
+    }
+}
+
 // Run both functions when the page loads
 window.onload = function() {
     setRandomBackground();
     loadTasks();
+    loadMessages(); // Load messages on page load
 };
 
 // Pomodoro Timer
