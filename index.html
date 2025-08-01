@@ -8,34 +8,33 @@
     <!-- Link CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
     
     <h1 id="myHeader">TO DO List</h1>
     
 <hr>
   
-
 <div class="input-container">  
+    <input type="text" id="nameInput" placeholder="enter your name..." />
     <input type="text" id="input" placeholder="enter task..." />
     <input type="button" id="addButton" value="Add" onclick="addTask()" />
 </div>
     
 <hr>
-
 <ul id="tasks">
   
   <li>
     <input type="button" class="done" onclick="markDone(this.parentNode)" value="&#x2713;" />
     <input type="button" class="remove" onclick="remove(this.parentNode)" value="&#x2715;" />
-    All Slab techs start locking in (˵ •̀ ᴗ - ˵ ) ✧
+    <span class="task-content">
+        <strong>Sample User:</strong> All Slab techs start locking in (˵ •̀ ᴗ - ˵ ) ✧
+    </span>
   </li>
   
 </ul>
     
 <hr>    
 <hr>
-
 <!-- Pomodoro Timer Section -->
     <div class="pomodoro-timer">
         <h2>Pomodoro Timer</h2>
@@ -44,26 +43,21 @@
                 <button id="pauseBtn" onclick="pausePomodoro()">Pause</button>
                 <button id="resetBtn" onclick="resetPomodoro()">Reset</button>
     </div>
-
 <hr>
 <hr>
-
 <!-- stft Music Player Section -->
   <div class="music-player">
       <h2>Music by Link Fu</h2>
-
         <p><canvas id="fftCanvas"></canvas></p>
         <p><audio id="audioPlayer" controls></audio></p>
   </div>
     
 <hr>
     
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
     
 </body>
     
 </html>
-
-    
-
-    
