@@ -1,4 +1,7 @@
-//randomly choose background from the following
+// Supabase Configuration
+const SUPABASE_URL = 'https://dpopxtljjdkkzcnxwyfx.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRwb3B4dGxqamRra3pjbnh3eWZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwODAyMjIsImV4cCI6MjA2OTY1NjIyMn0.udAGcJa2CjZfKec34_QL-uBymgu2g9x9mWRrelwr11I';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 function setRandomBackground() {
     const backgrounds = [
@@ -21,104 +24,195 @@ function setRandomBackground() {
     console.log("Background set to:", selectedBackground);
 }
 
-// Function to load tasks from localStorage
-function loadTasks() {
-    var tasks = JSON.parse(localStorage.getItem("tasks")) || []; // Get tasks or use empty array if nothing is saved
+// Function to load tasks from Supabase
+async function loadTasks() {
+    try {
+        const { data: tasks, error } = await supabase
+            .from('tasks')
+            .select('*')
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        // Clear existing tasks
+        document.getElementById("tasks").innerHTML = '';
+
+        tasks.forEach(function(task) {
+            var item = document.createElement("li");
+            item.dataset.taskId = task.id; // Store task ID for updates/deletes
+            item.innerHTML = '<input type="button" class="done" onclick="markDone(this.parentNode)"  value="&#x2713;" /> ' + 
+                             '<input type="button" class="remove" onclick="remove(this.parentNode)" value="&#x2715;" /> ' + 
+                             '<span class="task-content"><strong>' + task.user_name + ':</strong> ' + task.task_text + '</span>';
+
+            // Mark task as done if applicable
+            if (task.is_done) {
+                item.classList.add("finished");
+            }
+
+            document.getElementById("tasks").appendChild(item);
+        });
+    } catch (error) {
+        console.error('Error loading tasks:', error);
+        // Fallback to localStorage if Supabase fails
+        loadTasksFromLocalStorage();
+    }
+}
+
+// Fallback function to load from localStorage
+function loadTasksFromLocalStorage() {
+    var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
     tasks.forEach(function(task) {
         var item = document.createElement("li");
         item.innerHTML = '<input type="button" class="done" onclick="markDone(this.parentNode)"  value="&#x2713;" /> ' + 
                          '<input type="button" class="remove" onclick="remove(this.parentNode)" value="&#x2715;" /> ' + 
-                         task.text;
+                         '<span class="task-content">' + task.text + '</span>';
 
-        // Mark task as done if applicable
         if (task.done) {
-            item.classList.add("finished"); // Add "finished" class if the task was marked as done
+            item.classList.add("finished");
         }
 
         document.getElementById("tasks").appendChild(item);
     });
 }
 
-// Function to save tasks to localStorage
-function saveTasks() {
-    var tasks = [];
-    var taskItems = document.querySelectorAll("#tasks li");
-    taskItems.forEach(function(item) {
-        var taskText = item.textContent.trim(); // Get task text, ignoring buttons
-        var isDone = item.classList.contains("finished"); // Check if the task is marked as done
+// Function to save task to Supabase
+async function saveTaskToSupabase(userName, taskText) {
+    try {
+        const { data, error } = await supabase
+            .from('tasks')
+            .insert([
+                {
+                    user_name: userName,
+                    task_text: taskText,
+                    is_done: false
+                }
+            ])
+            .select();
 
-        // check and remove "sample" task
-        if (taskText !== "All Slab techs start locking in (˵ •̀ ᴗ - ˵ ) ✧") {
-            tasks.push({ text: taskText, done: isDone }); // Save both text and state
-         }
-    });
-    
-    localStorage.setItem("tasks", JSON.stringify(tasks)); // Save tasks array in localStorage
+        if (error) throw error;
+        return data[0];
+    } catch (error) {
+        console.error('Error saving task:', error);
+        throw error;
+    }
 }
 
+// Function to update task status in Supabase
+async function updateTaskStatus(taskId, isDone) {
+    try {
+        const { error } = await supabase
+            .from('tasks')
+            .update({ is_done: isDone })
+            .eq('id', taskId);
+
+        if (error) throw error;
+    } catch (error) {
+        console.error('Error updating task:', error);
+    }
+}
+
+// Function to delete task from Supabase
+async function deleteTaskFromSupabase(taskId) {
+    try {
+        const { error } = await supabase
+            .from('tasks')
+            .delete()
+            .eq('id', taskId);
+
+        if (error) throw error;
+    } catch (error) {
+        console.error('Error deleting task:', error);
+    }
+}
 
 // User adding task to the to-do list
+async function addTask() {
+    var nameInput = document.getElementById("nameInput");
+    var taskInput = document.getElementById("input");
+    var userName = nameInput.value.trim();
+    var newTask = taskInput.value.trim();
 
-function addTask () {
-    var input = document.getElementById("input");
-    // get current text from input field
-    var newTask = input.value;
-    // only add new item to list if some text was entered 
-    if (newTask != "") {
-        // create new HTML list item
+    // Validate inputs
+    if (userName === "" || newTask === "") {
+        alert("Please enter both your name and a task!");
+        return;
+    }
+
+    try {
+        // Save to Supabase
+        const savedTask = await saveTaskToSupabase(userName, newTask);
+
+        // Create new HTML list item
         var item = document.createElement("li");
-        // add HTML for buttons and new task text
-        // Note, need to use '' because of "" in HTML
-        item.innerHTML = '<input type="button" class="done" onclick="markDone(this.parentNode)"  value="&#x2713;" /> ' + '<input type="button" class="remove" onclick="remove(this.parentNode)" value="&#x2715;" /> ' + newTask;
+        item.dataset.taskId = savedTask.id; // Store task ID
+        item.innerHTML = '<input type="button" class="done" onclick="markDone(this.parentNode)"  value="&#x2713;" /> ' + 
+                         '<input type="button" class="remove" onclick="remove(this.parentNode)" value="&#x2715;" /> ' + 
+                         '<span class="task-content"><strong>' + userName + ':</strong> ' + newTask + '</span>';
 
-        // add new item as part of existing list
-        document.getElementById("tasks").appendChild(item); 
+        // Add new item to the list
+        document.getElementById("tasks").appendChild(item);
 
-      
-        input.value='';
-        input.placeholder='enter next task...'
+        // Clear inputs
+        nameInput.value = '';
+        taskInput.value = '';
+        taskInput.placeholder = 'enter next task...';
 
-        
-        // Save updated tasks list
-        saveTasks();
-        
+    } catch (error) {
+        console.error('Failed to save task:', error);
+        alert('Failed to save task. Please try again.');
     }
 }
 
-// make keyboard enter/return equivalent to add button
+// Make keyboard enter/return equivalent to add button
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById("input").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            addTask();
+        }
+    });
 
-document.getElementById("input").addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {  // Check if Enter key is pressed
-        addTask();
-    }
+    document.getElementById("nameInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            document.getElementById("input").focus();
+        }
+    });
 });
 
-// cross out after done task
-function markDone(item) {
+// Cross out after done task
+async function markDone(item) {
     item.classList.toggle("finished");
-    showAffirmation(); // Call the showAffirmation function when a task is marked as done
-    saveTasks(); // Save the updated tasks
-}
-//delete to remove tasks
-function remove (item) {
-    // remove item completely from document
-    item.remove();
-    saveTasks();
+    const isDone = item.classList.contains("finished");
+    const taskId = item.dataset.taskId;
+
+    if (taskId) {
+        await updateTaskStatus(taskId, isDone);
+    }
+
+    showAffirmation();
 }
 
+// Delete to remove tasks
+async function remove(item) {
+    const taskId = item.dataset.taskId;
+    
+    if (taskId) {
+        await deleteTaskFromSupabase(taskId);
+    }
+    
+    item.remove();
+}
 
 // Run both functions when the page loads
 window.onload = function() {
-    setRandomBackground();  // Set random background
-    loadTasks();            // Load tasks from localStorage
+    setRandomBackground();
+    loadTasks();
 };
 
-// pomodoro
-
+// Pomodoro Timer
 let pomodoroTimer;
 let isRunning = false;
-let remainingTime = 25 * 60; // 25 minutes in seconds
-let isBreakTime = false; // Switch between work and break
+let remainingTime = 25 * 60;
+let isBreakTime = false;
 
 function updateTimerDisplay() {
     let minutes = Math.floor(remainingTime / 60);
@@ -127,7 +221,7 @@ function updateTimerDisplay() {
 }
 
 function startPomodoro() {
-    if (isRunning) return; // If already running, do nothing
+    if (isRunning) return;
 
     isRunning = true;
     pomodoroTimer = setInterval(function() {
@@ -137,10 +231,10 @@ function startPomodoro() {
         if (remainingTime <= 0) {
             clearInterval(pomodoroTimer);
             isRunning = false;
-            isBreakTime = !isBreakTime; // Switch between work and break
-            remainingTime = isBreakTime ? 5 * 60 : 25 * 60; // 5 minutes break or 25 minutes work
+            isBreakTime = !isBreakTime;
+            remainingTime = isBreakTime ? 5 * 60 : 25 * 60;
             alert(isBreakTime ? "Take a break!" : "Back to work!");
-            startPomodoro(); // Start next session (work/break)
+            startPomodoro();
         }
     }, 1000);
 }
@@ -153,13 +247,11 @@ function pausePomodoro() {
 function resetPomodoro() {
     clearInterval(pomodoroTimer);
     isRunning = false;
-    remainingTime = 25 * 60; // Reset to 25 minutes work time
+    remainingTime = 25 * 60;
     updateTimerDisplay();
 }
 
-
-
-// List of affirmation words
+// Affirmations
 const affirmations = [
     "Leah becomes a well-known artist!",
     "Jordan is living her awesome life",
@@ -174,36 +266,29 @@ const affirmations = [
     "Qianqian loves you all"
 ];
 
-// Function to get a random affirmation
 function getRandomAffirmation() {
     const randomIndex = Math.floor(Math.random() * affirmations.length);
     return affirmations[randomIndex];
 }
 
-// Display affirmation message
 function showAffirmation() {
     const affirmationText = getRandomAffirmation();
     
-    // Create the affirmation element
     const affirmationElement = document.createElement('div');
     affirmationElement.classList.add('affirmation');
     affirmationElement.textContent = affirmationText;
 
-    // Add the affirmation to the body (or a specific container)
     document.body.appendChild(affirmationElement);
 
-    // Set a timeout to remove the affirmation after 2 seconds
     setTimeout(() => {
-        affirmationElement.classList.add('fadeOut'); // Trigger fade-out animation
+        affirmationElement.classList.add('fadeOut');
         setTimeout(() => {
-            affirmationElement.remove(); // Remove element after fade-out
-        }, 1000); // Time for the fade-out effect
-    }, 2000); // Time before the affirmation disappears (2 seconds)
+            affirmationElement.remove();
+        }, 1000);
+    }, 2000);
 }
 
-//music player with stft
-
-// Music files stored in the GitHub folder "music/"
+// Music Player with FFT Visualization
 const musicFiles = [
     "music/404_患者_byLinkFu.mp3",
     "music/Computers_have_taken_over_the_world_byLinkFu.mp3",
@@ -217,72 +302,64 @@ const musicFiles = [
     "music/rawr_byLinkFu.mp3"
 ];
 
-// Select a random song
-const randomSong = musicFiles[Math.floor(Math.random() * musicFiles.length)];
-
-// Get the audio player element
-const audioPlayer = document.getElementById("audioPlayer");
-audioPlayer.src = randomSong;
-audioPlayer.load(); // Load the song
-audioPlayer.play(); // Auto-play when page loads
-
-
-// --- FOURIER TRANSFORM VISUALIZATION ---
-const canvas = document.getElementById("fftCanvas");
-    canvas.width = window.innerWidth;  // Make the canvas span the full width
-    canvas.height = 150; // Set a fixed height for the canvas (adjust as needed)
-
-// Resize the canvas if the window size changes
-    window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth; // Re-adjust the width
-});
-
-const ctx = canvas.getContext("2d");
-
-// Web Audio API setup
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-const analyser = audioContext.createAnalyser();
-const source = audioContext.createMediaElementSource(audioPlayer);
-source.connect(analyser);
-analyser.connect(audioContext.destination);
-
-// Configure analyser
-analyser.fftSize = 2048;
-const bufferLength = analyser.frequencyBinCount;
-const dataArray = new Uint8Array(bufferLength);
-
-// Draw the frequency spectrum
-function drawFFT() {
-    requestAnimationFrame(drawFFT);
-    analyser.getByteFrequencyData(dataArray);
-
-    // Transparent background
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+// Music player setup (when DOM is loaded)
+document.addEventListener('DOMContentLoaded', function() {
+    const randomSong = musicFiles[Math.floor(Math.random() * musicFiles.length)];
+    const audioPlayer = document.getElementById("audioPlayer");
     
-    const barWidth = (canvas.width / bufferLength) * 2.5;
-    let x = 0;
-
-    for (let i = 0; i < bufferLength; i++) {
-        const barHeight = dataArray[i] / 2;
+    if (audioPlayer) {
+        audioPlayer.src = randomSong;
+        audioPlayer.load();
         
-            // Set the fill color to black for the bars
-            ctx.fillStyle = "white";
-            ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+        // FFT Visualization setup
+        const canvas = document.getElementById("fftCanvas");
+        if (canvas) {
+            canvas.width = window.innerWidth;
+            canvas.height = 150;
 
-            // Set the stroke color to white for the edges
-            ctx.strokeStyle = "white";
-            ctx.lineWidth = 1; // Set the edge thickness
-            ctx.strokeRect(x, canvas.height - barHeight, barWidth, barHeight);
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+            });
 
-            x += barWidth + 1;
+            const ctx = canvas.getContext("2d");
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const analyser = audioContext.createAnalyser();
+            const source = audioContext.createMediaElementSource(audioPlayer);
+            
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+
+            analyser.fftSize = 2048;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+
+            function drawFFT() {
+                requestAnimationFrame(drawFFT);
+                analyser.getByteFrequencyData(dataArray);
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                const barWidth = (canvas.width / bufferLength) * 2.5;
+                let x = 0;
+
+                for (let i = 0; i < bufferLength; i++) {
+                    const barHeight = dataArray[i] / 2;
+                    
+                    ctx.fillStyle = "white";
+                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+                    ctx.strokeStyle = "white";
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+                    x += barWidth + 1;
+                }
+            }
+
+            audioPlayer.onplay = () => {
+                audioContext.resume();
+                drawFFT();
+            };
+        }
     }
-}
-
-// Start visualization when audio plays
-audioPlayer.onplay = () => {
-    audioContext.resume();
-    drawFFT();
-};
-
-
-
+});
