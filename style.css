@@ -88,7 +88,7 @@ body {
     text-align: center;
     margin: 10px 0;
     font-size: 18px;
-    color: #ffeb3b;
+    color: #ffffff;
 }
 
 .logout-btn {
@@ -195,7 +195,7 @@ li.finished {
 .leaderboard h3 {
     text-align: center;
     margin-bottom: 15px;
-    color: #ffeb3b;
+    color: #ffffff;
 }
 
 .leaderboard-item {
@@ -222,7 +222,7 @@ li.finished {
 .now-playing {
     margin: 15px 0;
     font-size: 18px;
-    color: #ffeb3b;
+    color: #ffffff;
 }
 
 .song-list {
@@ -249,7 +249,7 @@ li.finished {
 
 .song-item.playing {
     background: rgba(255, 235, 59, 0.3);
-    border: 1px solid #ffeb3b;
+    border: 1px solid #ffffff;
 }
 
 canvas {
@@ -274,7 +274,7 @@ canvas {
     font-size: 3em;
     font-weight: bold;
     margin: 10px;
-    color: #ffeb3b;
+    color: #ffffff;
 }
 
 /* Message Board */
