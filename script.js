@@ -213,18 +213,24 @@ function logout() {
 
 // Background functions
 function setRandomBackground() {
-    // Using gradient backgrounds since we can't access file system directly in browser
-    const backgroundColors = [
-        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-        'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-        'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-        'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'
+    const backgrounds = [
+        "url('images/background1.png')",
+        "url('images/background2.png')",
+        "url('images/background3.png')",
+        "url('images/background4.png')",
+        "url('images/background5.png')",
+        "url('images/background6.png')"
     ];
 
-    const randomIndex = Math.floor(Math.random() * backgroundColors.length);
-    document.body.style.background = backgroundColors[randomIndex];
+    const randomIndex = Math.floor(Math.random() * backgrounds.length);
+    const selectedBackground = backgrounds[randomIndex];
+
+    document.body.style.backgroundImage = selectedBackground;
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundPosition = "center";
+    document.body.style.backgroundRepeat = "no-repeat";
+
+    console.log("Background set to:", selectedBackground);
 }
 
 // Task functions
@@ -458,7 +464,7 @@ async function loadLeaderboards() {
             item.className = 'leaderboard-item';
             item.innerHTML = `
                 <span>${index + 1}. ${user.username}</span>
-                <span>${user.pomodoro_count} 🍅</span>
+                <span>${user.pomodoro_count} ‪‪❤︎‬</span>
             `;
             pomodoroBoard.appendChild(item);
         });
@@ -472,7 +478,7 @@ async function loadLeaderboards() {
             item.className = 'leaderboard-item';
             item.innerHTML = `
                 <span>${index + 1}. ${user.username}</span>
-                <span>${user.tasks_completed} ✅</span>
+                <span>${user.tasks_completed} ★</span>
             `;
             taskBoard.appendChild(item);
         });
@@ -518,7 +524,7 @@ async function startPomodoro() {
             
             isBreakTime = !isBreakTime;
             remainingTime = isBreakTime ? 5 * 60 : 25 * 60;
-            alert(isBreakTime ? "Take a 5-minute break! 🍅" : "Back to work! 💪");
+            alert(isBreakTime ? "Take a 5-minute break! _(:з」∠)_" : "Back to work! (˶˃ ᵕ ˂˶)");
             updateTimerDisplay();
         }
     }, 1000);
@@ -568,7 +574,7 @@ function loadSongList() {
         const filename = file.split('/').pop().replace('.mp3', '');
         const parts = filename.split('_by');
         const songName = parts[0].replace(/_/g, ' ');
-        const artist = parts[1] ? parts[1].replace('LinkFu', 'Link Fu') : 'Link Fu';
+        const artist = parts[1] ? parts[1].replace(/([A-Z])/g, ' $1').trim() : 'Unknown Artist';
         
         songItem.innerHTML = `
             <div><strong>${songName}</strong></div>
@@ -593,9 +599,9 @@ function playSong(index) {
     const filename = musicFiles[index].split('/').pop().replace('.mp3', '');
     const parts = filename.split('_by');
     const songName = parts[0].replace(/_/g, ' ');
-    const artist = parts[1] ? parts[1].replace('LinkFu', 'Link Fu') : 'Link Fu';
+    const artist = parts[1] ? parts[1].replace(/([A-Z])/g, ' $1').trim() : 'Unknown Artist';
     
-    nowPlaying.textContent = `🎵 ${songName} - ${artist}`;
+    nowPlaying.textContent = `♫ ${songName} - ${artist}`;
     
     // Update song list UI
     document.querySelectorAll('.song-item').forEach((item, i) => {
