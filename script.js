@@ -495,14 +495,44 @@ function updateTimerDisplay() {
         `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
 }
 
+// Play notificaion sounds
+function playNotificationSound(isBreak = false) {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Different tones for work vs break
+        if (isBreak) {
+            // Higher, more relaxing tone for break time
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+        } else {
+            // Lower, more focused tone for work time
+            oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(500, audioContext.currentTime + 0.1);
+        }
+        
+        oscillator.type = 'sine';
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (error) {
+        console.log('Audio not supported, falling back to alert');
+    }
+}
+
 async function startPomodoro() {
     if (isRunning) return;
-
     isRunning = true;
     pomodoroTimer = setInterval(async function() {
         remainingTime--;
         updateTimerDisplay();
-
         if (remainingTime <= 0) {
             clearInterval(pomodoroTimer);
             isRunning = false;
@@ -524,7 +554,11 @@ async function startPomodoro() {
             
             isBreakTime = !isBreakTime;
             remainingTime = isBreakTime ? 5 * 60 : 25 * 60;
-            alert(isBreakTime ? "Take a 5-minute break! _(:з」∠)_" : "Back to work! (˶˃ ᵕ ˂˶)");
+            
+            // Play sound and show alert
+            playNotificationSound(isBreakTime);
+            alert(isBreakTime ? "Take a 5-minute break! *(:з」∠)*" : "Back to work! (˶˃ ᵕ ˂˶)");
+            
             updateTimerDisplay();
         }
     }, 1000);
