@@ -557,7 +557,7 @@ async function startPomodoro() {
             
             // Play sound and show alert
             playNotificationSound(isBreakTime);
-            alert(isBreakTime ? "Take a 5-minute break! *(:з」∠)*" : "Back to work! (˶˃ ᵕ ˂˶)");
+            alert(isBreakTime ? "Take a 5-minute break~" : "Back to work~");
             
             updateTimerDisplay();
         }
