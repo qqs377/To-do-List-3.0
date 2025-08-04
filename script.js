@@ -902,14 +902,14 @@ function showAffirmation() {
 //        if (error) {
 //            console.error('Error checking calendar resets:', error);
 //            return;
-        }
+//        }
         
         // Log any resets that occurred
 //        if (data && data.length > 0) {
 //            data.forEach(result => {
 //                console.log('Reset result:', result.reset_performed);
-            });
-        }
+//            });
+//        }
         
 //    } catch (error) {
 //        console.error('Error in checkCalendarResets:', error);
