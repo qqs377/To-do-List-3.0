@@ -94,7 +94,6 @@ function initializeEventListeners() {
             handleAuth();
         }
     });
-}
 
     // Leaderboard period buttons
     document.addEventListener('click', function(e) {
