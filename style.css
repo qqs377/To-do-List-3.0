@@ -102,6 +102,15 @@ body {
     color: #ffffff;
 }
 
+.studying-with {
+    text-align: center;
+    margin: 5px 0 15px 0;
+    font-size: 16px;
+    color: #ffeb3b;
+    font-style: italic;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
 .logout-btn {
     position: fixed;
     top: 20px;
@@ -188,6 +197,59 @@ li.finished {
     margin-left: 10px;
 }
 
+/* Task Section */
+.task-section {
+    margin: 20px 0;
+}
+
+.task-filters {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn.active {
+    background: white;
+    color: black;
+    border-color: white;
+}
+
+.filter-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: white;
+}
+
+.user-select {
+    padding: 8px 12px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.9);
+    color: black;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.user-select:focus {
+    outline: none;
+    border-color: white;
+    background: white;
+}
+
 /* Leaderboards */
 .leaderboards {
     display: grid;
@@ -207,6 +269,36 @@ li.finished {
     text-align: center;
     margin-bottom: 15px;
     color: #ffffff;
+}
+
+.leaderboard-controls {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.period-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.period-btn.active {
+    background: rgba(255, 255, 255, 0.8);
+    color: black;
+    border-color: white;
+}
+
+.period-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: white;
 }
 
 .leaderboard-item {
@@ -415,6 +507,21 @@ canvas {
         align-items: stretch;
     }
     
+    .task-filters {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .filter-btn, .period-btn {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+    
+    .leaderboard-controls {
+        flex-direction: column;
+        gap: 3px;
+    }
+    
     #timerDisplay {
         font-size: 2em;
     }
@@ -437,5 +544,15 @@ canvas {
         font-size: 18px;
         padding: 15px;
         max-width: 90%;
+    }
+    
+    .studying-with {
+        font-size: 14px;
+        padding: 0 10px;
+    }
+    
+    .user-select {
+        width: 100%;
+        margin-top: 5px;
     }
 }
