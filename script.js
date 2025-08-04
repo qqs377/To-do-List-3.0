@@ -895,24 +895,24 @@ function showAffirmation() {
 
 // automatically reset weekly and monthly count
 
-async function checkCalendarResets() {
-    try {
+//async function checkCalendarResets() {
+//    try {
         // Call the PostgreSQL function to perform calendar-based resets
-        const { data, error } = await supabase.rpc('perform_calendar_resets');
+//        const { data, error } = await supabase.rpc('perform_calendar_resets');
         
-        if (error) {
-            console.error('Error checking calendar resets:', error);
-            return;
-        }
+//        if (error) {
+//            console.error('Error checking calendar resets:', error);
+//            return;
+//        }
         
         // Log any resets that occurred
-        if (data && data.length > 0) {
-            data.forEach(result => {
-                console.log('Reset result:', result.reset_performed);
-            });
-        }
+//        if (data && data.length > 0) {
+//            data.forEach(result => {
+//                console.log('Reset result:', result.reset_performed);
+//            });
+//        }
         
-    } catch (error) {
-        console.error('Error in checkCalendarResets:', error);
-    }
-}
+//    } catch (error) {
+//        console.error('Error in checkCalendarResets:', error);
+//    }
+//}
