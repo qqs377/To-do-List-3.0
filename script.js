@@ -324,7 +324,7 @@ async function loadStudyingWith() {
         
         if (users && users.length > 0) {
             const usernames = users.map(user => user.username).join(', ');
-            studyingWithElement.textContent = `${usernames} ${users.length === 1 ? 'is' : 'are'} studying with you!`;
+            studyingWithElement.textContent = `${usernames} ${users.length === 1 ? 'is' : 'are'} locking in with you!`;
         } else {
             studyingWithElement.textContent = "You're ahead of everyone!";
         }
