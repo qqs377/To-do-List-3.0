@@ -609,38 +609,90 @@ async function deleteMessage(messageId, messageElement) {
 }
 
 // Leaderboard functions
+// Leaderboard functions
 async function loadLeaderboards() {
     try {
         const { data: users, error } = await supabase
             .from('users_v3')
-            .select('username, pomodoro_count, tasks_completed')
+            .select('username, pomodoro_count, tasks_completed, week_count_pomodoro, month_count_pomodoro, week_count_task, month_count_task')
             .order('pomodoro_count', { ascending: false });
 
         if (error) throw error;
 
+        // Get active periods
+        const activePomoPeriod = document.querySelector('.period-btn.active[data-type="pomodoro"]')?.dataset.period || 'cumulative';
+        const activeTaskPeriod = document.querySelector('.period-btn.active[data-type="task"]')?.dataset.period || 'cumulative';
+
         // Pomodoro leaderboard
         const pomodoroBoard = document.getElementById('pomodoroLeaderboard');
         pomodoroBoard.innerHTML = '';
-        users.slice(0, 5).forEach((user, index) => {
+        
+        let pomodoroSortedUsers = [...users];
+        switch (activePomoPeriod) {
+            case 'weekly':
+                pomodoroSortedUsers.sort((a, b) => (b.week_count_pomodoro || 0) - (a.week_count_pomodoro || 0));
+                break;
+            case 'monthly':
+                pomodoroSortedUsers.sort((a, b) => (b.month_count_pomodoro || 0) - (a.month_count_pomodoro || 0));
+                break;
+            default: // cumulative
+                pomodoroSortedUsers.sort((a, b) => b.pomodoro_count - a.pomodoro_count);
+        }
+        
+        pomodoroSortedUsers.slice(0, 5).forEach((user, index) => {
             const item = document.createElement('div');
             item.className = 'leaderboard-item';
+            let count = 0;
+            switch (activePomoPeriod) {
+                case 'weekly':
+                    count = user.week_count_pomodoro || 0;
+                    break;
+                case 'monthly':
+                    count = user.month_count_pomodoro || 0;
+                    break;
+                default:
+                    count = user.pomodoro_count;
+            }
             item.innerHTML = `
                 <span>${index + 1}. ${user.username}</span>
-                <span>${user.pomodoro_count} ‪‪❤︎‬</span>
+                <span>${count} ‪‪❤︎‬</span>
             `;
             pomodoroBoard.appendChild(item);
         });
 
         // Task leaderboard
         const taskBoard = document.getElementById('taskLeaderboard');
-        const sortedByTasks = [...users].sort((a, b) => b.tasks_completed - a.tasks_completed);
         taskBoard.innerHTML = '';
-        sortedByTasks.slice(0, 5).forEach((user, index) => {
+        
+        let taskSortedUsers = [...users];
+        switch (activeTaskPeriod) {
+            case 'weekly':
+                taskSortedUsers.sort((a, b) => (b.week_count_task || 0) - (a.week_count_task || 0));
+                break;
+            case 'monthly':
+                taskSortedUsers.sort((a, b) => (b.month_count_task || 0) - (a.month_count_task || 0));
+                break;
+            default: // cumulative
+                taskSortedUsers.sort((a, b) => b.tasks_completed - a.tasks_completed);
+        }
+        
+        taskSortedUsers.slice(0, 5).forEach((user, index) => {
             const item = document.createElement('div');
             item.className = 'leaderboard-item';
+            let count = 0;
+            switch (activeTaskPeriod) {
+                case 'weekly':
+                    count = user.week_count_task || 0;
+                    break;
+                case 'monthly':
+                    count = user.month_count_task || 0;
+                    break;
+                default:
+                    count = user.tasks_completed;
+            }
             item.innerHTML = `
                 <span>${index + 1}. ${user.username}</span>
-                <span>${user.tasks_completed} ★</span>
+                <span>${count} ★</span>
             `;
             taskBoard.appendChild(item);
         });
