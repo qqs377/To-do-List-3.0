@@ -184,7 +184,7 @@ async function handleAuth() {
                 currentUser = { ...existingUser, last_login: new Date().toISOString() };
                 
                 // Check for calendar-based resets (affects all users)
-                await checkCalendarResets();
+//                await checkCalendarResets(); //supabase does not have this function, need to fix
                 
                 showMainApp();
             } else {
@@ -894,24 +894,24 @@ function showAffirmation() {
 
 // automatically reset weekly and monthly count
 
-async function checkCalendarResets() {
-    try {
+//async function checkCalendarResets() {
+//    try {
         // Call the PostgreSQL function to perform calendar-based resets
-        const { data, error } = await supabase.rpc('perform_calendar_resets');
+//        const { data, error } = await supabase.rpc('perform_calendar_resets'); //supa base does not have this function, need to fix
         
-        if (error) {
-            console.error('Error checking calendar resets:', error);
-            return;
+//        if (error) {
+//            console.error('Error checking calendar resets:', error);
+//            return;
         }
         
         // Log any resets that occurred
-        if (data && data.length > 0) {
-            data.forEach(result => {
-                console.log('Reset result:', result.reset_performed);
+//        if (data && data.length > 0) {
+//            data.forEach(result => {
+//                console.log('Reset result:', result.reset_performed);
             });
         }
         
-    } catch (error) {
-        console.error('Error in checkCalendarResets:', error);
-    }
-}
+//    } catch (error) {
+//        console.error('Error in checkCalendarResets:', error);
+//    }
+//}
