@@ -12,6 +12,8 @@ let isBreakTime = false;
 let audioContext;
 let analyser;
 let currentSongIndex = 0;
+let currentTaskFilter = 'all';
+let currentUserFilter = '';
 
 // Music files list - you can expand this or make it dynamic
 const musicFiles = [
@@ -31,7 +33,7 @@ const musicFiles = [
 const affirmations = [
     "Leah becomes a well-known artist!",
     "Jordan is living her awesome life",
-    "Is that Yejun?",
+    "Yejun bought a lake house",
     "Jennifer earned her 1M dollars",
     "Link is a millionaire now",
     "Hans just got his greencard",
@@ -94,6 +96,57 @@ function initializeEventListeners() {
     });
 }
 
+    // Leaderboard period buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('period-btn')) {
+            const type = e.target.dataset.type;
+            const period = e.target.dataset.period;
+            
+            // Update active button
+            document.querySelectorAll(`.period-btn[data-type="${type}"]`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+            e.target.classList.add('active');
+            
+            // Update leaderboard
+            loadLeaderboards();
+        }
+    });
+
+    // Task filter buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('filter-btn')) {
+            currentTaskFilter = e.target.dataset.filter;
+            currentUserFilter = '';
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            e.target.classList.add('active');
+            
+            // Reset user filter dropdown
+            document.getElementById('userFilter').value = '';
+            
+            // Filter tasks
+            filterTasks();
+        }
+    });
+
+    // User filter dropdown
+    document.getElementById('userFilter').addEventListener('change', function(e) {
+        currentUserFilter = e.target.value;
+        currentTaskFilter = 'user';
+        
+        // Reset filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        filterTasks();
+    });
+}
+
 // Authentication functions
 async function handleAuth() {
     const name = document.getElementById('authName').value.trim();
@@ -152,7 +205,12 @@ async function handleAuth() {
                     username: name,
                     password: password,
                     pomodoro_count: 0,
-                    tasks_completed: 0
+                    tasks_completed: 0,
+                    week_count_pomodoro: 0,
+                    month_count_pomodoro: 0,
+                    week_count_task: 0,
+                    month_count_task: 0,
+                    last_login: new Date().toISOString()
                 }])
                 .select()
                 .single();
@@ -192,6 +250,8 @@ function showMainApp() {
     loadTasks();
     loadMessages();
     loadLeaderboards();
+    loadStudyingWith();
+    loadUserFilter();
     initializeMusicPlayer();
     updateTimerDisplay();
 }
@@ -233,6 +293,34 @@ function setRandomBackground() {
     console.log("Background set to:", selectedBackground);
 }
 
+// Studying with functionality
+async function loadStudyingWith() {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const { data: users, error } = await supabase
+            .from('users_v3')
+            .select('username, last_login')
+            .gte('last_login', today.toISOString())
+            .neq('id', currentUser.id);
+
+        if (error) throw error;
+
+        const studyingWithElement = document.getElementById('studyingWith');
+        
+        if (users && users.length > 0) {
+            const usernames = users.map(user => user.username).join(', ');
+            studyingWithElement.textContent = `${usernames} ${users.length === 1 ? 'is' : 'are'} studying with you!`;
+        } else {
+            studyingWithElement.textContent = "You're ahead of everyone!";
+        }
+    } catch (error) {
+        console.error('Error loading studying with:', error);
+        document.getElementById('studyingWith').textContent = "You're ahead of everyone!";
+    }
+}
+
 // Task functions
 async function loadTasks() {
     try {
@@ -243,32 +331,87 @@ async function loadTasks() {
 
         if (error) throw error;
 
-        const tasksList = document.getElementById('tasks');
-        tasksList.innerHTML = '';
-
-        tasks.forEach(task => {
-            const li = document.createElement('li');
-            li.dataset.taskId = task.id;
-            
-            const canModify = currentUser && task.user_id === currentUser.id;
-            
-            li.innerHTML = `
-                ${canModify ? `<button class="done" onclick="markDone(this.parentNode)">✓</button>` : ''}
-                ${canModify ? `<button class="remove" onclick="removeTask(this.parentNode)">✕</button>` : ''}
-                <span class="task-content">${task.task_text}</span>
-                <span class="task-owner">by ${task.users_v3.username}</span>
-            `;
-
-            if (task.is_done) {
-                li.classList.add('finished');
-            }
-
-            tasksList.appendChild(li);
-        });
+        window.allTasks = tasks; // Store for filtering
+        filterTasks();
     } catch (error) {
         console.error('Error loading tasks:', error);
     }
 }
+
+async function loadUserFilter() {
+    try {
+        const { data: users, error } = await supabase
+            .from('users_v3')
+            .select('username')
+            .order('username');
+
+        if (error) throw error;
+
+        const userSelect = document.getElementById('userFilter');
+        userSelect.innerHTML = '<option value="">Filter by user...</option>';
+        
+        users.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.username;
+            option.textContent = user.username;
+            userSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading user filter:', error);
+    }
+}
+
+function filterTasks() {
+    if (!window.allTasks) return;
+    
+    let filteredTasks = window.allTasks;
+    
+    switch (currentTaskFilter) {
+        case 'my':
+            filteredTasks = window.allTasks.filter(task => task.user_id === currentUser.id);
+            break;
+        case 'others':
+            filteredTasks = window.allTasks.filter(task => task.user_id !== currentUser.id);
+            break;
+        case 'user':
+            if (currentUserFilter) {
+                filteredTasks = window.allTasks.filter(task => task.users_v3.username === currentUserFilter);
+            }
+            break;
+        case 'all':
+        default:
+            filteredTasks = window.allTasks;
+            break;
+    }
+    
+    displayTasks(filteredTasks);
+}
+
+function displayTasks(tasks) {
+    const tasksList = document.getElementById('tasks');
+    tasksList.innerHTML = '';
+
+    tasks.forEach(task => {
+        const li = document.createElement('li');
+        li.dataset.taskId = task.id;
+        
+        const canModify = currentUser && task.user_id === currentUser.id;
+        
+        li.innerHTML = `
+            ${canModify ? `<button class="done" onclick="markDone(this.parentNode)">✓</button>` : ''}
+            ${canModify ? `<button class="remove" onclick="removeTask(this.parentNode)">✕</button>` : ''}
+            <span class="task-content">${task.task_text}</span>
+            <span class="task-owner">by ${task.users_v3.username}</span>
+        `;
+
+        if (task.is_done) {
+            li.classList.add('finished');
+        }
+
+        tasksList.appendChild(li);
+    });
+}
+
 
 async function addTask() {
     const taskInput = document.getElementById('taskInput');
@@ -315,10 +458,16 @@ async function markDone(taskElement) {
             // Increment task completion count
             await supabase
                 .from('users_v3')
-                .update({ tasks_completed: currentUser.tasks_completed + 1 })
+                .update({ 
+                    tasks_completed: currentUser.tasks_completed + 1,
+                    week_count_task: currentUser.week_count_task + 1,
+                    month_count_task: currentUser.month_count_task + 1
+                })
                 .eq('id', currentUser.id);
             
             currentUser.tasks_completed++;
+            currentUser.week_count_task++;
+            currentUser.month_count_task++;
             showAffirmation();
         }
 
