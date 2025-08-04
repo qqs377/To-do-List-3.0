@@ -175,8 +175,18 @@ async function handleAuth() {
             }
 
             if (existingUser.password === password) {
-                // Login successful
-                currentUser = existingUser;
+                // Update last login time
+                await supabase
+                    .from('users_v3')
+                    .update({ last_login: new Date().toISOString() })
+                    .eq('id', existingUser.id);
+                
+                // Login successful - set current user with updated last_login
+                currentUser = { ...existingUser, last_login: new Date().toISOString() };
+                
+                // Check for calendar-based resets (affects all users)
+                await checkCalendarResets();
+                
                 showMainApp();
             } else {
                 errorElement.textContent = 'Incorrect password';
@@ -218,6 +228,10 @@ async function handleAuth() {
             if (createError) throw createError;
 
             currentUser = newUser;
+
+            // Check for calendar-based resets (affects all users)
+            await checkCalendarResets();
+            
             showMainApp();
         }
     } catch (error) {
@@ -876,4 +890,29 @@ function showAffirmation() {
             affirmationElement.remove();
         }, 1000);
     }, 2000);
+}
+
+
+// automatically reset weekly and monthly count
+
+async function checkCalendarResets() {
+    try {
+        // Call the PostgreSQL function to perform calendar-based resets
+        const { data, error } = await supabase.rpc('perform_calendar_resets');
+        
+        if (error) {
+            console.error('Error checking calendar resets:', error);
+            return;
+        }
+        
+        // Log any resets that occurred
+        if (data && data.length > 0) {
+            data.forEach(result => {
+                console.log('Reset result:', result.reset_performed);
+            });
+        }
+        
+    } catch (error) {
+        console.error('Error in checkCalendarResets:', error);
+    }
 }
