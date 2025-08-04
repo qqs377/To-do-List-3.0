@@ -488,6 +488,16 @@ async function loadLeaderboards() {
 }
 
 // Pomodoro timer functions
+
+// Tab title display as pomodoro timer
+function updateDocumentTitle() {
+    const minutes = Math.floor(remainingTime / 60);
+    const seconds = remainingTime % 60;
+    const timeStr = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+    document.title = `To-Do List ${timeStr}`;
+}
+
+// Timer display
 function updateTimerDisplay() {
     const minutes = Math.floor(remainingTime / 60);
     const seconds = remainingTime % 60;
@@ -533,6 +543,7 @@ async function startPomodoro() {
     pomodoroTimer = setInterval(async function() {
         remainingTime--;
         updateTimerDisplay();
+        updateDocumentTitle();
         if (remainingTime <= 0) {
             clearInterval(pomodoroTimer);
             isRunning = false;
@@ -575,6 +586,7 @@ function resetPomodoro() {
     isBreakTime = false;
     remainingTime = 25 * 60;
     updateTimerDisplay();
+    updateDocumentTitle();
 }
 
 // Music Player functions
