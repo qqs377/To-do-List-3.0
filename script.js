@@ -216,9 +216,9 @@ async function handleAuth() {
                     pomodoro_count: 0,
                     tasks_completed: 0,
                     week_count_pomodoro: 0,
-                    month_count_pomodoro: 0,
+                    day_count_pomodoro: 0,
                     week_count_task: 0,
-                    month_count_task: 0,
+                    day_count_task: 0,
                     last_login: new Date().toISOString()
                 }])
                 .select()
@@ -474,13 +474,13 @@ async function markDone(taskElement) {
                 .update({ 
                     tasks_completed: currentUser.tasks_completed + 1,
                     week_count_task: currentUser.week_count_task + 1,
-                    month_count_task: currentUser.month_count_task + 1
+                    day_count_task: currentUser.day_count_task + 1
                 })
                 .eq('id', currentUser.id);
             
             currentUser.tasks_completed++;
             currentUser.week_count_task++;
-            currentUser.month_count_task++;
+            currentUser.day_count_task++;
             showAffirmation();
         }
 
@@ -609,12 +609,11 @@ async function deleteMessage(messageId, messageElement) {
 }
 
 // Leaderboard functions
-// Leaderboard functions
 async function loadLeaderboards() {
     try {
         const { data: users, error } = await supabase
             .from('users_v3')
-            .select('username, pomodoro_count, tasks_completed, week_count_pomodoro, month_count_pomodoro, week_count_task, month_count_task')
+            .select('username, pomodoro_count, tasks_completed, week_count_pomodoro, day_count_pomodoro, week_count_task, day_count_task')
             .order('pomodoro_count', { ascending: false });
 
         if (error) throw error;
@@ -632,11 +631,11 @@ async function loadLeaderboards() {
             case 'weekly':
                 pomodoroSortedUsers.sort((a, b) => (b.week_count_pomodoro || 0) - (a.week_count_pomodoro || 0));
                 break;
-            case 'monthly':
-                pomodoroSortedUsers.sort((a, b) => (b.month_count_pomodoro || 0) - (a.month_count_pomodoro || 0));
-                break;
-            default: // cumulative
+            case 'cumulative':
                 pomodoroSortedUsers.sort((a, b) => b.pomodoro_count - a.pomodoro_count);
+                break;
+            default: // daily
+                pomodoroSortedUsers.sort((a, b) => (b.day_count_pomodoro || 0) - (a.day_count_pomodoro || 0));
         }
         
         pomodoroSortedUsers.slice(0, 5).forEach((user, index) => {
@@ -647,11 +646,11 @@ async function loadLeaderboards() {
                 case 'weekly':
                     count = user.week_count_pomodoro || 0;
                     break;
-                case 'monthly':
-                    count = user.month_count_pomodoro || 0;
-                    break;
-                default:
+                case 'cumulative':
                     count = user.pomodoro_count;
+                    break;
+                default://daily
+                    count = user.day_count_pomodoro || 0;
             }
             item.innerHTML = `
                 <span>${index + 1}. ${user.username}</span>
@@ -669,11 +668,11 @@ async function loadLeaderboards() {
             case 'weekly':
                 taskSortedUsers.sort((a, b) => (b.week_count_task || 0) - (a.week_count_task || 0));
                 break;
-            case 'monthly':
-                taskSortedUsers.sort((a, b) => (b.month_count_task || 0) - (a.month_count_task || 0));
-                break;
-            default: // cumulative
+            case 'cumulative':
                 taskSortedUsers.sort((a, b) => b.tasks_completed - a.tasks_completed);
+                break;
+            default: // daily
+                taskSortedUsers.sort((a, b) => (b.day_count_task || 0) - (a.day_count_task || 0));
         }
         
         taskSortedUsers.slice(0, 5).forEach((user, index) => {
@@ -684,11 +683,11 @@ async function loadLeaderboards() {
                 case 'weekly':
                     count = user.week_count_task || 0;
                     break;
-                case 'monthly':
-                    count = user.month_count_task || 0;
-                    break;
-                default:
+                case 'cumulative':
                     count = user.tasks_completed;
+                    break;
+                default: // daily
+                    count = user.day_count_task || 0;
             }
             item.innerHTML = `
                 <span>${index + 1}. ${user.username}</span>
@@ -767,10 +766,16 @@ async function startPomodoro() {
                 try {
                     await supabase
                         .from('users_v3')
-                        .update({ pomodoro_count: currentUser.pomodoro_count + 1 })
+                        .update({ 
+                            pomodoro_count: currentUser.pomodoro_count + 1,
+                            week_count_pomodoro: currentUser.week_count_pomodoro + 1,
+                            day_count_pomodoro: currentUser.day_count_pomodoro + 1
+                        })
                         .eq('id', currentUser.id);
                     
                     currentUser.pomodoro_count++;
+                    currentUser.week_count_pomodoro++;
+                    currentUser.day_count_pomodoro++;
                     loadLeaderboards();
                 } catch (error) {
                     console.error('Error updating pomodoro count:', error);
