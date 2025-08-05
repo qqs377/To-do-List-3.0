@@ -4,3 +4,5 @@
 2. Now support Leaderboards
 3. Now can manager task and message individually
 4. Now support choosing music to play
+5. Now support daily, weekly and all time leaderboard display
+6. Now support task filter
