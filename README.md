@@ -7,3 +7,4 @@
 5. Now support daily, weekly and all time leaderboard display
 6. Now support task filter
 7. Now support Pomodoro count down display in the tab title
+8. Now support message likes
