@@ -484,7 +484,7 @@ canvas {
 
 .thumbs-up-btn[data-liked="true"] {
     background: rgba(255, 255, 255, 0.9) !important;
-    color: #4ECDC4 !important;
+    color: #361c0c !important;
     border-color: rgba(255, 255, 255, 0.9);
     box-shadow: 0 2px 6px rgba(255, 255, 255, 0.3);
 }
