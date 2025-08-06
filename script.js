@@ -528,8 +528,6 @@ async function loadMessages() {
     try {
         const { data: messages, error } = await supabase
             .from('messages_v3')
-            .select('
-                     .from('messages_v3')
             .select(`
                 id,
                 message_text,
