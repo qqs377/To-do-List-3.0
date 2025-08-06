@@ -306,7 +306,8 @@ function setRandomBackground() {
         "url('images/wlop6.png')",
         "url('images/wlop7.png')",
         "url('images/wlop8.png')",
-        "url('images/wlop9.png')"
+        "url('images/wlop9.png')",
+        "url('images/wlop10.png')"
     ];
 
     const randomIndex = Math.floor(Math.random() * backgrounds.length);
