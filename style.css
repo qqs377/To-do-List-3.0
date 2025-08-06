@@ -461,6 +461,44 @@ canvas {
     display: block;
 }
 
+.thumbs-up-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.8);
+    min-width: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.thumbs-up-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.thumbs-up-btn[data-liked="true"] {
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: #4ECDC4 !important;
+    border-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 6px rgba(255, 255, 255, 0.3);
+}
+
+.thumbs-up-icon {
+    color: inherit;
+    flex-shrink: 0;
+}
+
+.likes-count {
+    font-weight: bold;
+    font-size: 11px;
+}
+
 /* Affirmations */
 .affirmation {
     position: fixed;
