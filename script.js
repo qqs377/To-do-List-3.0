@@ -26,7 +26,10 @@ const musicFiles = [
     "music/The_fall_of_the_god_of_all_liars_byLinkFu.mp3",
     "music/compressed_tomorrow_byLinkFu.mp3",
     "music/Itai_byLinkFu.mp3",
-    "music/rawr_byLinkFu.mp3"
+    "music/Bruch_Violin_Concerto_No.1_mvt.2_byYejunKim.mp3",
+    "music/Chopin_Scherzo_no.1_op.20_byYejunKim.mp3",
+    "music/Meditation_de_Thais_1_byYejunKim.mp3",
+    "music/Wieniaski_Scherzo_Tarantella_byYejunKim.mp3"
 ];
 
 // Affirmations list
@@ -292,7 +295,18 @@ function setRandomBackground() {
         "url('images/background3.png')",
         "url('images/background4.png')",
         "url('images/background5.png')",
-        "url('images/background6.png')"
+        "url('images/background6.png')",
+        "url('images/wlop0.png')",
+        "url('images/wlop1.png')",
+        "url('images/wlop2.png')",
+        "url('images/wlop3.png')",
+        "url('images/wlop4.png')",
+        "url('images/wlop5.png')",
+        "url('images/wlop6.png')",
+        "url('images/wlop7.png')",
+        "url('images/wlop8.png')",
+        "url('images/wlop9.png')",
+        "url('images/wlop10.png')"
     ];
 
     const randomIndex = Math.floor(Math.random() * backgrounds.length);
