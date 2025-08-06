@@ -376,7 +376,7 @@ async function loadUserFilter() {
         if (error) throw error;
 
         const userSelect = document.getElementById('userFilter');
-        userSelect.innerHTML = '<option value="">Filter by user...</option>';
+        userSelect.innerHTML = '<option value="">Filter by tech...</option>';
         
         users.forEach(user => {
             const option = document.createElement('option');
