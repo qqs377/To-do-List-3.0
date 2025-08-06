@@ -489,11 +489,6 @@ canvas {
     box-shadow: 0 2px 6px rgba(255, 255, 255, 0.3);
 }
 
-.thumbs-up-btn[data-liked="true"] .thumbs-up-icon {
-    stroke: #361c0c !important;
-    color: #361c0c !important;
-}
-
 .thumbs-up-icon {
     color: inherit;
     flex-shrink: 0;
