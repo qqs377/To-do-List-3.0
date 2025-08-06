@@ -528,7 +528,18 @@ async function loadMessages() {
     try {
         const { data: messages, error } = await supabase
             .from('messages_v3')
-            .select('*, users_v3(username)')
+            .select('
+                     .from('messages_v3')
+            .select(`
+                id,
+                message_text,
+                created_at,
+                user_id,
+                likes_count,
+                users_v3 (
+                    username
+                )
+            `)
             .order('created_at', { ascending: true });
 
         if (error) throw error;
@@ -539,6 +550,10 @@ async function loadMessages() {
         messages.forEach(message => {
             createMessageElement(message);
         });
+        
+        // IMPORTANT: Check which messages the current user has liked
+        await checkUserLikes();
+        
     } catch (error) {
         console.error('Error loading messages:', error);
     }
@@ -601,10 +616,9 @@ async function toggleLike(messageId, buttonElement) {
 
         const isLiked = !!existingLike;
         const likesCountSpan = buttonElement.querySelector('.likes-count');
-        let currentCount = parseInt(likesCountSpan.textContent) || 0;
 
         if (isLiked) {
-            // Unlike: remove from message_likes and decrement count
+            // Unlike: remove from message_likes
             const { error: deleteError } = await supabase
                 .from('message_likes')
                 .delete()
@@ -613,19 +627,12 @@ async function toggleLike(messageId, buttonElement) {
 
             if (deleteError) throw deleteError;
 
-            const { error: updateError } = await supabase
-                .from('messages_v3')
-                .update({ likes_count: Math.max(0, currentCount - 1) })
-                .eq('id', messageId);
-
-            if (updateError) throw updateError;
-
-            // Update UI
-            buttonElement.style.backgroundColor = '';
+            // Update UI immediately
+            buttonElement.classList.remove('liked');
             buttonElement.dataset.liked = 'false';
-            likesCountSpan.textContent = Math.max(0, currentCount - 1);
+
         } else {
-            // Like: add to message_likes and increment count
+            // Like: add to message_likes
             const { error: insertError } = await supabase
                 .from('message_likes')
                 .insert([{
@@ -635,18 +642,32 @@ async function toggleLike(messageId, buttonElement) {
 
             if (insertError) throw insertError;
 
-            const { error: updateError } = await supabase
-                .from('messages_v3')
-                .update({ likes_count: currentCount + 1 })
-                .eq('id', messageId);
-
-            if (updateError) throw updateError;
-
-            // Update UI
-            buttonElement.style.backgroundColor = '#4ECDC4';
+            // Update UI immediately
+            buttonElement.classList.add('liked');
             buttonElement.dataset.liked = 'true';
-            likesCountSpan.textContent = currentCount + 1;
         }
+
+        // Get actual count and update both DB and UI
+        const { data: actualCount, error: countError } = await supabase
+            .from('message_likes')
+            .select('id', { count: 'exact' })
+            .eq('message_id', messageId);
+
+        if (countError) throw countError;
+
+        const newCount = actualCount?.length || 0;
+
+        // Update messages_v3 with correct count
+        const { error: updateError } = await supabase
+            .from('messages_v3')
+            .update({ likes_count: newCount })
+            .eq('id', messageId);
+
+        if (updateError) throw updateError;
+
+        // Update UI with actual count
+        likesCountSpan.textContent = newCount;
+
     } catch (error) {
         console.error('Error toggling like:', error);
         alert('Failed to update like. Please try again.');
