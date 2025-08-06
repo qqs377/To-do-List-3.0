@@ -566,11 +566,91 @@ function createMessageElement(message) {
             <div class="message-author">${message.users_v3.username}</div>
             <div class="message-text">${message.message_text}</div>
             <div class="message-time">${new Date(message.created_at).toLocaleString()}</div>
+            <div class="message-actions">
+                <button class="thumbs-up-btn" onclick="toggleLike('${message.id}', this)" data-liked="false">
+                    <svg class="thumbs-up-icon" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="likes-count">${message.likes_count || 0}</span>
+                </button>
             ${canDelete ? `<button class="delete-message" onclick="deleteMessage('${message.id}', this.parentNode.parentNode)">×</button>` : ''}
         </div>
+    </div>
     `;
-
     canvas.appendChild(messageDiv);
+}
+
+async function toggleLike(messageId, buttonElement) {
+    if (!currentUser) {
+        alert('Please log in to like messages!');
+        return;
+    }
+
+    try {
+        // Check if user already liked this message
+        const { data: existingLike, error: checkError } = await supabase
+            .from('message_likes')
+            .select('id')
+            .eq('message_id', messageId)
+            .eq('user_id', currentUser.id)
+            .single();
+
+        if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows returned
+            throw checkError;
+        }
+
+        const isLiked = !!existingLike;
+        const likesCountSpan = buttonElement.querySelector('.likes-count');
+        let currentCount = parseInt(likesCountSpan.textContent) || 0;
+
+        if (isLiked) {
+            // Unlike: remove from message_likes and decrement count
+            const { error: deleteError } = await supabase
+                .from('message_likes')
+                .delete()
+                .eq('message_id', messageId)
+                .eq('user_id', currentUser.id);
+
+            if (deleteError) throw deleteError;
+
+            const { error: updateError } = await supabase
+                .from('messages_v3')
+                .update({ likes_count: Math.max(0, currentCount - 1) })
+                .eq('id', messageId);
+
+            if (updateError) throw updateError;
+
+            // Update UI
+            buttonElement.style.backgroundColor = '';
+            buttonElement.dataset.liked = 'false';
+            likesCountSpan.textContent = Math.max(0, currentCount - 1);
+        } else {
+            // Like: add to message_likes and increment count
+            const { error: insertError } = await supabase
+                .from('message_likes')
+                .insert([{
+                    message_id: messageId,
+                    user_id: currentUser.id
+                }]);
+
+            if (insertError) throw insertError;
+
+            const { error: updateError } = await supabase
+                .from('messages_v3')
+                .update({ likes_count: currentCount + 1 })
+                .eq('id', messageId);
+
+            if (updateError) throw updateError;
+
+            // Update UI
+            buttonElement.style.backgroundColor = '#4ECDC4';
+            buttonElement.dataset.liked = 'true';
+            likesCountSpan.textContent = currentCount + 1;
+        }
+    } catch (error) {
+        console.error('Error toggling like:', error);
+        alert('Failed to update like. Please try again.');
+    }
 }
 
 async function postMessage() {
@@ -592,7 +672,8 @@ async function postMessage() {
             .from('messages_v3')
             .insert([{
                 user_id: currentUser.id,
-                message_text: messageText
+                message_text: messageText,
+                likes_count: 0
             }])
             .select();
 
@@ -620,6 +701,34 @@ async function deleteMessage(messageId, messageElement) {
         } catch (error) {
             console.error('Error deleting message:', error);
         }
+    }
+}
+
+// Function to check which messages the current user has liked (call this when loading messages)
+async function checkUserLikes() {
+    if (!currentUser) return;
+    
+    try {
+        const { data: userLikes, error } = await supabase
+            .from('message_likes')
+            .select('message_id')
+            .eq('user_id', currentUser.id);
+
+        if (error) throw error;
+
+        // Update UI to show liked messages
+        userLikes.forEach(like => {
+            const messageElement = document.querySelector(`[data-message-id="${like.message_id}"]`);
+            if (messageElement) {
+                const thumbsUpBtn = messageElement.querySelector('.thumbs-up-btn');
+                if (thumbsUpBtn) {
+                    thumbsUpBtn.style.backgroundColor = '#4ECDC4';
+                    thumbsUpBtn.dataset.liked = 'true';
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error checking user likes:', error);
     }
 }
 
