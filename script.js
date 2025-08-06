@@ -653,7 +653,7 @@ async function loadLeaderboards() {
                 pomodoroSortedUsers.sort((a, b) => (b.day_count_pomodoro || 0) - (a.day_count_pomodoro || 0));
         }
         
-        pomodoroSortedUsers.slice(0, 5).forEach((user, index) => {
+        pomodoroSortedUsers.slice(0, 3).forEach((user, index) => { //.slice(0,3) show top 3 rank
             const item = document.createElement('div');
             item.className = 'leaderboard-item';
             let count = 0;
@@ -690,7 +690,7 @@ async function loadLeaderboards() {
                 taskSortedUsers.sort((a, b) => (b.day_count_task || 0) - (a.day_count_task || 0));
         }
         
-        taskSortedUsers.slice(0, 5).forEach((user, index) => {
+        taskSortedUsers.slice(0, 3).forEach((user, index) => { //.slice(0,3) show top 3 rank
             const item = document.createElement('div');
             item.className = 'leaderboard-item';
             let count = 0;
