@@ -26,6 +26,7 @@ const musicFiles = [
     "music/The_fall_of_the_god_of_all_liars_byLinkFu.mp3",
     "music/compressed_tomorrow_byLinkFu.mp3",
     "music/Itai_byLinkFu.mp3",
+    "music/rawr_byLinkFu.mp3",
     "music/Bruch_Violin_Concerto_No.1_mvt.2_byYejunKim.mp3",
     "music/Chopin_Scherzo_no.1_op.20_byYejunKim.mp3",
     "music/Meditation_de_Thais_1_byYejunKim.mp3",
