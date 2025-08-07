@@ -250,6 +250,18 @@ li.finished {
     background: white;
 }
 
+.task-edit-input {
+    border: 2px solid #007bff;
+    border-radius: 3px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.task-edit-input:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
 /* Leaderboards */
 .leaderboards {
     display: grid;
