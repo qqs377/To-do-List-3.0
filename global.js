@@ -186,8 +186,8 @@ async function handleAuth() {
                 // Login successful - set current user with updated last_login
                 currentUser = { ...existingUser, last_login: new Date().toISOString() };
                 
-                // Check for calendar-based resets (affects all users)
-//                await checkCalendarResets(); //supabase does not have this function, need to fix
+                // IMPORTANT: Initialize tags immediately after login
+                await initializeTags();
                 
                 showMainApp();
             } else {
@@ -231,14 +231,105 @@ async function handleAuth() {
 
             currentUser = newUser;
 
-            // Check for calendar-based resets (affects all users)
-            await checkCalendarResets();
+            // IMPORTANT: Initialize tags for new user
+            await initializeTags();
             
             showMainApp();
         }
     } catch (error) {
         console.error('Auth error:', error);
         errorElement.textContent = 'Authentication failed. Please try again.';
+    }
+}
+
+// Fixed showMainApp function
+async function showMainApp() {
+    document.getElementById('authModal').style.display = 'none';
+    document.getElementById('appContainer').style.display = 'block';
+    document.getElementById('currentUser').textContent = currentUser.username;
+    
+    // Initialize app in correct order
+    setRandomBackground();
+    
+    try {
+        // Load user-specific data first
+        await loadUserTags(); // Make sure tags are loaded
+        await loadTasks();     // Then load tasks (which depend on tags)
+        
+        // Load other data
+        await loadMessages();
+        await loadLeaderboards();
+        await loadStudyingWith();
+        await loadUserFilter();
+        
+        // Initialize non-async components
+        initializeMusicPlayer();
+        updateTimerDisplay();
+        
+        console.log('App initialized successfully for user:', currentUser.username);
+        console.log('User tags loaded:', window.userTags);
+        
+    } catch (error) {
+        console.error('Error initializing app:', error);
+        alert('Error loading app data. Please refresh and try again.');
+    }
+}
+
+// Add this function to properly initialize tags
+async function initializeTags() {
+    if (!currentUser) {
+        console.error('Cannot initialize tags: no current user');
+        return;
+    }
+    
+    try {
+        console.log('Initializing tags for user:', currentUser.username);
+        await loadUserTags();
+        console.log('Tags initialized:', window.userTags);
+        
+        // Validate that all default tags exist
+        if (!window.userTags || window.userTags.length === 0) {
+            console.log('No tags found, creating default tags...');
+            await createDefaultTags();
+        }
+        
+    } catch (error) {
+        console.error('Error initializing tags:', error);
+        throw error; // Re-throw to handle in calling function
+    }
+}
+
+// Add this function to create default tags if they don't exist
+async function createDefaultTags() {
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFEAA7', '#DDA0DD'];
+    const defaultNames = {
+        '#FF6B6B': 'Priority',
+        '#4ECDC4': 'Work',
+        '#45B7D1': 'Personal',
+        '#FFEAA7': 'Learning',
+        '#DDA0DD': 'Fun'
+    };
+    
+    try {
+        const defaultTags = colors.map(color => ({
+            user_id: currentUser.id,
+            color: color,
+            tag_name: defaultNames[color]
+        }));
+        
+        const { data, error } = await supabase
+            .from('tags_v3')
+            .insert(defaultTags)
+            .select();
+            
+        if (error) throw error;
+        
+        console.log('Default tags created:', data);
+        window.userTags = data;
+        
+    } catch (error) {
+        console.error('Error creating default tags:', error);
+        throw error;
     }
 }
 
