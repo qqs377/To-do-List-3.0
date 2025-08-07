@@ -1,5 +1,5 @@
-// Constants
-const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'];
+// Constants - Reduced to 5 colors
+const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFEAA7', '#DDA0DD'];
 
 // Task functions
 async function loadTasks() {
@@ -60,10 +60,8 @@ function getDefaultTagName(color) {
         '#FF6B6B': 'Priority',
         '#4ECDC4': 'Work',
         '#45B7D1': 'Personal',
-        '#96CEB4': 'Health',
         '#FFEAA7': 'Learning',
-        '#DDA0DD': 'Fun',
-        '#98D8C8': 'Other'
+        '#DDA0DD': 'Fun'
     };
     return defaultNames[color] || 'Unnamed';
 }
@@ -185,58 +183,95 @@ function createTagSelector(currentTagId, currentColor) {
 }
 
 function setupTagSelector(taskElement, taskId, currentTagId) {
+    const tagSelector = taskElement.querySelector('.tag-selector');
     const tagColor = taskElement.querySelector('.tag-color');
     const dropdown = taskElement.querySelector('.tag-dropdown');
+    
+    if (!tagSelector || !tagColor || !dropdown) {
+        console.error('Tag elements not found');
+        return;
+    }
     
     // Toggle dropdown on click
     tagColor.addEventListener('click', (e) => {
         e.stopPropagation();
+        // Close other dropdowns first
+        document.querySelectorAll('.tag-dropdown.show').forEach(d => {
+            if (d !== dropdown) d.classList.remove('show');
+        });
         dropdown.classList.toggle('show');
     });
     
     // Handle tag option selection
-    dropdown.addEventListener('click', async (e) => {
-        if (e.target.classList.contains('tag-option')) {
+    const tagOptions = dropdown.querySelectorAll('.tag-option');
+    tagOptions.forEach(option => {
+        option.addEventListener('click', async (e) => {
             e.stopPropagation();
             const selectedColor = e.target.dataset.color;
+            console.log('Selected color:', selectedColor);
             await updateTaskTag(taskId, selectedColor);
             dropdown.classList.remove('show');
-        }
+        });
     });
     
     // Handle tag name editing (double-click)
     tagColor.addEventListener('dblclick', async (e) => {
         e.stopPropagation();
+        dropdown.classList.remove('show'); // Close dropdown if open
         if (currentTagId) {
             await editTagName(currentTagId, tagColor);
         }
     });
     
     // Close dropdown when clicking elsewhere
-    document.addEventListener('click', () => {
-        dropdown.classList.remove('show');
-    });
+    const closeDropdown = (e) => {
+        if (!tagSelector.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    };
+    
+    // Add event listener to document but remove any previous ones
+    document.removeEventListener('click', closeDropdown);
+    document.addEventListener('click', closeDropdown);
 }
 
 async function updateTaskTag(taskId, color) {
     try {
+        console.log('Updating task', taskId, 'with color', color);
+        
+        // Ensure user tags are loaded
+        if (!window.userTags) {
+            await loadUserTags();
+        }
+        
         // Find the tag ID for this color
         const userTag = window.userTags?.find(tag => tag.color === color);
         if (!userTag) {
             console.error('Tag not found for color:', color);
+            console.log('Available tags:', window.userTags);
             return;
         }
         
-        const { error } = await supabase
+        console.log('Found tag:', userTag);
+        
+        const { data, error } = await supabase
             .from('tasks_v3')
             .update({ tag_id: userTag.id })
-            .eq('id', taskId);
+            .eq('id', taskId)
+            .select();
 
-        if (error) throw error;
+        if (error) {
+            console.error('Supabase error:', error);
+            throw error;
+        }
+        
+        console.log('Task updated successfully:', data);
 
-        loadTasks(); // Reload to show updated tag
+        // Reload tasks to show updated tag
+        await loadTasks();
     } catch (error) {
         console.error('Error updating task tag:', error);
+        alert('Failed to update tag. Please try again.');
     }
 }
 
