@@ -169,12 +169,16 @@ function displayTasks(tasks) {
 }
 
 function createTagSelector(currentTagId, currentColor) {
+    // Get current tag info
+    const currentTag = window.userTags?.find(tag => tag.id === currentTagId);
+    const displayColor = currentTag?.color || currentColor || '#CCCCCC';
+    
     return `
         <div class="tag-selector">
-            <div class="tag-color" style="background-color: ${currentColor}" data-tag-id="${currentTagId || ''}">
+            <div class="tag-color" style="background-color: ${displayColor}" data-tag-id="${currentTagId || ''}">
                 <div class="tag-dropdown">
                     ${colors.map(color => `
-                        <div class="tag-option" style="background-color: ${color}" data-color="${color}"></div>
+                        <div class="tag-option" style="background-color: ${color}" data-color="${color}" title="${getDefaultTagName(color)}"></div>
                     `).join('')}
                 </div>
             </div>
@@ -529,12 +533,19 @@ async function removeTask(taskElement) {
     }
 }
 
-// Initialize tags when user logs in
+// Initialize tags when user logs in - CALL THIS AFTER LOGIN
 async function initializeTags() {
     if (currentUser) {
+        console.log('Initializing tags for user:', currentUser.id);
         await loadUserTags();
+        console.log('Tags loaded:', window.userTags);
     }
 }
+
+// Make sure to call this in your login function:
+// After successful login, add these lines:
+// await initializeTags();
+// await loadTasks();
 
 // Affirmation functions
 function getRandomAffirmation() {
