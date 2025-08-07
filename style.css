@@ -262,13 +262,14 @@ li.finished {
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-/* Tag System CSS */
+/* ===== TAG SYSTEM CSS - ADD THIS TO YOUR EXISTING STYLESHEET ===== */
 
 /* Tag selector container */
 .tag-selector {
     position: relative;
     display: inline-block;
     margin-right: 8px;
+    flex-shrink: 0;
 }
 
 /* Main tag color box */
@@ -281,6 +282,7 @@ li.finished {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     transition: all 0.2s ease;
     position: relative;
+    flex-shrink: 0;
 }
 
 .tag-color:hover {
@@ -327,35 +329,107 @@ li.finished {
 /* Tag display for non-editable tasks */
 .tag-display {
     display: inline-block;
-    padding: 2px 8px;
+    padding: 3px 8px;
     border-radius: 12px;
     font-size: 11px;
     color: white;
     font-weight: 500;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     margin-right: 8px;
     min-width: 40px;
     text-align: center;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Tag edit input */
+/* Tag edit input for editing tag names */
 .tag-edit-input {
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    padding: 2px 4px;
-    font-size: 11px;
-    width: 80px;
-    text-align: center;
+    background: white !important;
+    border: 1px solid #ccc !important;
+    border-radius: 3px !important;
+    padding: 2px 4px !important;
+    font-size: 11px !important;
+    width: 80px !important;
+    text-align: center !important;
+    color: black !important;
 }
 
 .tag-edit-input:focus {
-    outline: none;
-    border-color: #4ECDC4;
-    box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+    outline: none !important;
+    border-color: #4ECDC4 !important;
+    box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2) !important;
 }
 
-/* Responsive adjustments */
+/* Priority tasks (red tag) styling - enhance existing li styling */
+li:has(.tag-color[style*="#FF6B6B"]),
+li:has(.tag-display[style*="#FF6B6B"]) {
+    border-left: 4px solid #FF6B6B !important;
+    background: linear-gradient(90deg, rgba(255, 107, 107, 0.15) 0%, rgba(255, 255, 255, 0.1) 30%) !important;
+}
+
+/* Task buttons - enhance existing button styling */
+.done, .remove {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    margin-right: 5px;
+}
+
+.done {
+    background: #4ECDC4;
+    color: white;
+}
+
+.done:hover {
+    background: #45B7A8;
+    transform: scale(1.1);
+}
+
+.remove {
+    background: #FF6B6B;
+    color: white;
+}
+
+.remove:hover {
+    background: #e55555;
+    transform: scale(1.1);
+}
+
+/* Animation for dropdown */
+@keyframes tagDropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tag-dropdown {
+    animation: tagDropdownFadeIn 0.2s ease;
+}
+
+/* Color-specific text colors for better contrast */
+.tag-display[style*="#FFEAA7"] {
+    color: #333 !important; /* Dark text for light yellow background */
+}
+
+.tag-display[style*="#96CEB4"] {
+    color: #333 !important; /* Dark text for light green background */
+}
+
+/* Responsive adjustments for tags */
 @media (max-width: 768px) {
     .tag-color {
         width: 18px;
@@ -373,33 +447,15 @@ li.finished {
     
     .tag-display {
         font-size: 10px;
-        padding: 1px 6px;
+        padding: 2px 6px;
+        min-width: 30px;
     }
-}
-
-/* Animation for dropdown */
-.tag-dropdown {
-    animation: dropdownFadeIn 0.2s ease;
-}
-
-@keyframes dropdownFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
+    
+    .done, .remove {
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Color-specific text colors for better contrast */
-.tag-display[style*="#FFEAA7"] {
-    color: #333; /* Dark text for light yellow background */
-}
-
-.tag-display[style*="#96CEB4"] {
-    color: #333; /* Dark text for light green background */
 }
 
 /* Leaderboards */
