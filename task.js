@@ -175,15 +175,18 @@ function createTagSelector(currentTagId, currentColor) {
     const displayName = currentTag?.tag_name || 'No Tag';
     
     return `
-        <div class="tag-selector">
-            <div class="tag-color" style="background-color: ${displayColor}" data-tag-id="${currentTagId || ''}" title="Current: ${displayName}">
-                <div class="tag-dropdown">
+        <div class="tag-selector" style="position: relative; z-index: 1000;">
+            <div class="tag-color" 
+                 style="background-color: ${displayColor}; position: relative; z-index: 1001;" 
+                 data-tag-id="${currentTagId || ''}" 
+                 title="Current: ${displayName}">
+                <div class="tag-dropdown" style="position: absolute; z-index: 9999; top: 100%; left: 0; margin-top: 4px;">
                     ${colors.map(color => {
                         const tagForColor = window.userTags?.find(tag => tag.color === color);
                         const tagName = tagForColor?.tag_name || getDefaultTagName(color);
                         return `
                             <div class="tag-option" 
-                                 style="background-color: ${color}" 
+                                 style="background-color: ${color}; position: relative; z-index: 10000;" 
                                  data-color="${color}" 
                                  title="${tagName}">
                             </div>
@@ -195,9 +198,6 @@ function createTagSelector(currentTagId, currentColor) {
     `;
 }
 
-// Add this global click listener flag
-let globalClickListenerAttached = false;
-
 function setupTagSelector(taskElement, taskId, currentTagId) {
     const tagSelector = taskElement.querySelector('.tag-selector');
     const tagColor = taskElement.querySelector('.tag-color');
@@ -208,11 +208,27 @@ function setupTagSelector(taskElement, taskId, currentTagId) {
         return;
     }
     
+    // Ensure proper z-index styling
+    tagSelector.style.position = 'relative';
+    tagSelector.style.zIndex = '1000';
+    dropdown.style.position = 'absolute';
+    dropdown.style.zIndex = '9999';
+    dropdown.style.top = '100%';
+    dropdown.style.left = '0';
+    dropdown.style.marginTop = '4px';
+    
     // Remove any existing event listeners (prevent duplicates)
     const newTagColor = tagColor.cloneNode(true);
     tagColor.parentNode.replaceChild(newTagColor, tagColor);
     
     const newDropdown = newTagColor.querySelector('.tag-dropdown');
+    
+    // Ensure the new dropdown has proper styling
+    newDropdown.style.position = 'absolute';
+    newDropdown.style.zIndex = '9999';
+    newDropdown.style.top = '100%';
+    newDropdown.style.left = '0';
+    newDropdown.style.marginTop = '4px';
     
     // Toggle dropdown on click
     newTagColor.addEventListener('click', (e) => {
@@ -224,6 +240,25 @@ function setupTagSelector(taskElement, taskId, currentTagId) {
         });
         
         newDropdown.classList.toggle('show');
+        
+        // Ensure dropdown is positioned correctly when shown
+        if (newDropdown.classList.contains('show')) {
+            const rect = newTagColor.getBoundingClientRect();
+            const dropdownRect = newDropdown.getBoundingClientRect();
+            
+            // Check if dropdown would go off-screen and adjust if needed
+            if (rect.bottom + dropdownRect.height > window.innerHeight) {
+                newDropdown.style.top = 'auto';
+                newDropdown.style.bottom = '100%';
+                newDropdown.style.marginBottom = '4px';
+                newDropdown.style.marginTop = '0';
+            } else {
+                newDropdown.style.top = '100%';
+                newDropdown.style.bottom = 'auto';
+                newDropdown.style.marginTop = '4px';
+                newDropdown.style.marginBottom = '0';
+            }
+        }
     });
     
     // Handle tag option selection
