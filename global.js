@@ -264,6 +264,7 @@ function showMainApp() {
     // Initialize app
     setRandomBackground();
     loadTasks();
+    loadUserTags();
     loadMessages();
     loadLeaderboards();
     loadStudyingWith();
