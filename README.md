@@ -8,3 +8,4 @@
 6. Now support task filter
 7. Now support Pomodoro count down display in the tab title
 8. Now support message likes
+9. Now support double click to edit task
