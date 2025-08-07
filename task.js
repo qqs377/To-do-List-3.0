@@ -279,3 +279,27 @@ async function removeTask(taskElement) {
         console.error('Error removing task:', error);
     }
 }
+
+// Affirmation functions
+function getRandomAffirmation() {
+    const randomIndex = Math.floor(Math.random() * affirmations.length);
+    return affirmations[randomIndex];
+}
+
+function showAffirmation() {
+    const affirmationText = getRandomAffirmation();
+    
+    const affirmationElement = document.createElement('div');
+    affirmationElement.classList.add('affirmation');
+    affirmationElement.textContent = affirmationText;
+
+    document.body.appendChild(affirmationElement);
+
+    setTimeout(() => {
+        affirmationElement.classList.add('fadeOut');
+        setTimeout(() => {
+            affirmationElement.remove();
+        }, 1000);
+    }, 2000);
+}
+
