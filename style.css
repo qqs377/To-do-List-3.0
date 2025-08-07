@@ -385,22 +385,22 @@ li:has(.tag-display[style*="#FF6B6B"]) {
 }
 
 .done {
-    background: #4ECDC4;
+    background: transparent;
     color: white;
 }
 
 .done:hover {
-    background: #45B7A8;
+    background-color: rgba(255, 255, 255, 0.2);
     transform: scale(1.1);
 }
 
 .remove {
-    background: #FF6B6B;
+    background: transparent;
     color: white;
 }
 
 .remove:hover {
-    background: #e55555;
+    background-color: rgba(255, 255, 255, 0.2);
     transform: scale(1.1);
 }
 
