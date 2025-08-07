@@ -10,4 +10,4 @@
 8. Now users can choose music to play
 12. Now support Pomodoro count down display in the tab title
 13. Now support message likes
-14. More background added
+14. Now support tags and task priority
