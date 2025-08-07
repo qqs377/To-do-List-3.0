@@ -248,20 +248,31 @@ async function updateTaskTag(taskId, color) {
             await loadUserTags();
         }
         
-        // Find the tag ID for this color
-        const userTag = window.userTags?.find(tag => tag.color === color);
+        // Find the tag ID for this color and ensure it belongs to the current user
+        const userTag = window.userTags?.find(tag => tag.color === color && tag.user_id === currentUser.id);
         if (!userTag) {
-            console.error('Tag not found for color:', color);
+            console.error('Tag not found for color or does not belong to user:', color);
             console.log('Available tags:', window.userTags);
+            console.log('Current user ID:', currentUser.id);
+            alert('Invalid tag selection. Please try again.');
             return;
         }
         
         console.log('Found tag:', userTag);
         
+        // Additional validation: verify the task belongs to the current user before updating
+        const taskToUpdate = window.allTasks?.find(task => task.id === taskId);
+        if (!taskToUpdate || taskToUpdate.user_id !== currentUser.id) {
+            console.error('Task not found or does not belong to current user');
+            alert('You can only update your own tasks.');
+            return;
+        }
+        
         const { data, error } = await supabase
             .from('tasks_v3')
             .update({ tag_id: userTag.id })
             .eq('id', taskId)
+            .eq('user_id', currentUser.id) // Additional safety check
             .select();
 
         if (error) {
