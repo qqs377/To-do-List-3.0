@@ -436,8 +436,116 @@ function displayTasks(tasks) {
             li.classList.add('finished');
         }
 
+        // Add double-click event listener for editing (only for user's own tasks)
+        if (canModify) {
+            const taskContentSpan = li.querySelector('.task-content');
+            taskContentSpan.addEventListener('dblclick', function() {
+                editTask(li, task.id, task.task_text);
+            });
+            taskContentSpan.style.cursor = 'pointer';
+            taskContentSpan.title = 'Double-click to edit';
+        }
+
         tasksList.appendChild(li);
     });
+}
+
+// New function to handle task editing
+async function editTask(taskElement, taskId, currentText) {
+    const taskContentSpan = taskElement.querySelector('.task-content');
+    
+    // Create input field
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentText;
+    input.className = 'task-edit-input';
+    
+    // Style the input to match the span
+    input.style.border = '1px solid #ccc';
+    input.style.padding = '2px 4px';
+    input.style.fontSize = 'inherit';
+    input.style.fontFamily = 'inherit';
+    input.style.width = '200px';
+    input.style.backgroundColor = '#fff';
+    
+    // Replace span with input
+    taskContentSpan.style.display = 'none';
+    taskElement.insertBefore(input, taskContentSpan);
+    
+    // Focus and select all text
+    input.focus();
+    input.select();
+    
+    // Function to save changes
+    const saveEdit = async () => {
+        const newText = input.value.trim();
+        
+        if (!newText) {
+            alert('Task cannot be empty!');
+            input.focus();
+            return;
+        }
+        
+        if (newText === currentText) {
+            // No changes made, just cancel
+            cancelEdit();
+            return;
+        }
+        
+        try {
+            const { error } = await supabase
+                .from('tasks_v3')
+                .update({ task_text: newText })
+                .eq('id', taskId);
+
+            if (error) throw error;
+
+            // Update the display
+            taskContentSpan.textContent = newText;
+            cancelEdit();
+            
+            // Optionally reload tasks to ensure consistency
+            // loadTasks();
+            
+        } catch (error) {
+            console.error('Error updating task:', error);
+            alert('Failed to update task. Please try again.');
+            input.focus();
+        }
+    };
+    
+    // Function to cancel editing
+    const cancelEdit = () => {
+        taskElement.removeChild(input);
+        taskContentSpan.style.display = '';
+        input.removeEventListener('blur', handleBlur);
+        input.removeEventListener('keydown', handleKeydown);
+    };
+    
+    // Handle blur (clicking outside)
+    const handleBlur = (e) => {
+        // Small delay to allow click events to process first
+        setTimeout(() => {
+            if (document.contains(input)) {
+                saveEdit();
+            }
+        }, 100);
+    };
+    
+    // Handle keyboard events
+    const handleKeydown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveEdit();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            cancelEdit();
+        }
+    };
+    
+    // Add event listeners
+    input.addEventListener('blur', handleBlur);
+    input.addEventListener('keydown', handleKeydown);
 }
 
 
