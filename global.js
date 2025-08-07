@@ -98,3 +98,54 @@ function initializeEventListeners() {
             handleAuth();
         }
     });
+
+    // Leaderboard period buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('period-btn')) {
+            const type = e.target.dataset.type;
+            const period = e.target.dataset.period;
+            
+            // Update active button
+            document.querySelectorAll(`.period-btn[data-type="${type}"]`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+            e.target.classList.add('active');
+            
+            // Update leaderboard
+            loadLeaderboards();
+        }
+    });
+
+    // Task filter buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('filter-btn')) {
+            currentTaskFilter = e.target.dataset.filter;
+            currentUserFilter = '';
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            e.target.classList.add('active');
+            
+            // Reset user filter dropdown
+            document.getElementById('userFilter').value = '';
+            
+            // Filter tasks
+            filterTasks();
+        }
+    });
+
+    // User filter dropdown
+    document.getElementById('userFilter').addEventListener('change', function(e) {
+        currentUserFilter = e.target.value;
+        currentTaskFilter = 'user';
+        
+        // Reset filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        filterTasks();
+    });
+}
