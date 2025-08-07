@@ -1,9 +1,16 @@
+// Constants
+const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'];
+
 // Task functions
 async function loadTasks() {
     try {
         const { data: tasks, error } = await supabase
             .from('tasks_v3')
-            .select('*, users_v3(username)')
+            .select(`
+                *, 
+                users_v3(username),
+                tags_v3(color, tag_name)
+            `)
             .order('created_at', { ascending: true });
 
         if (error) throw error;
@@ -13,6 +20,52 @@ async function loadTasks() {
     } catch (error) {
         console.error('Error loading tasks:', error);
     }
+}
+
+async function loadUserTags() {
+    if (!currentUser) return;
+    
+    try {
+        const { data: tags, error } = await supabase
+            .from('tags_v3')
+            .select('*')
+            .eq('user_id', currentUser.id);
+
+        if (error) throw error;
+
+        // Create default tags if they don't exist
+        const existingColors = tags.map(tag => tag.color);
+        const missingColors = colors.filter(color => !existingColors.includes(color));
+        
+        if (missingColors.length > 0) {
+            const defaultTags = missingColors.map(color => ({
+                user_id: currentUser.id,
+                color: color,
+                tag_name: getDefaultTagName(color)
+            }));
+            
+            await supabase.from('tags_v3').insert(defaultTags);
+            return loadUserTags(); // Reload after creating defaults
+        }
+        
+        window.userTags = tags;
+        return tags;
+    } catch (error) {
+        console.error('Error loading user tags:', error);
+    }
+}
+
+function getDefaultTagName(color) {
+    const defaultNames = {
+        '#FF6B6B': 'Priority',
+        '#4ECDC4': 'Work',
+        '#45B7D1': 'Personal',
+        '#96CEB4': 'Health',
+        '#FFEAA7': 'Learning',
+        '#DDA0DD': 'Fun',
+        '#98D8C8': 'Other'
+    };
+    return defaultNames[color] || 'Unnamed';
 }
 
 async function loadUserFilter() {
@@ -46,6 +99,16 @@ function filterTasks() {
     switch (currentTaskFilter) {
         case 'my':
             filteredTasks = window.allTasks.filter(task => task.user_id === currentUser.id);
+            // Sort by priority: red tags first, then by creation date
+            filteredTasks.sort((a, b) => {
+                const aIsRed = a.tags_v3?.color === '#FF6B6B';
+                const bIsRed = b.tags_v3?.color === '#FF6B6B';
+                
+                if (aIsRed && !bIsRed) return -1;
+                if (!aIsRed && bIsRed) return 1;
+                
+                return new Date(a.created_at) - new Date(b.created_at);
+            });
             break;
         case 'others':
             filteredTasks = window.allTasks.filter(task => task.user_id !== currentUser.id);
@@ -74,9 +137,14 @@ function displayTasks(tasks) {
         
         const canModify = currentUser && task.user_id === currentUser.id;
         
+        // Create tag element
+        const tagColor = task.tags_v3?.color || '#CCCCCC';
+        const tagName = task.tags_v3?.tag_name || 'No Tag';
+        
         li.innerHTML = `
             ${canModify ? `<button class="done" onclick="markDone(this.parentNode)">✓</button>` : ''}
             ${canModify ? `<button class="remove" onclick="removeTask(this.parentNode)">✕</button>` : ''}
+            ${canModify ? createTagSelector(task.tag_id, tagColor) : `<div class="tag-display" style="background-color: ${tagColor}">${tagName}</div>`}
             <span class="task-content">${task.task_text}</span>
             <span class="task-owner">by ${task.users_v3.username}</span>
         `;
@@ -93,9 +161,158 @@ function displayTasks(tasks) {
             });
             taskContentSpan.style.cursor = 'pointer';
             taskContentSpan.title = 'Double-click to edit';
+            
+            // Add tag functionality
+            setupTagSelector(li, task.id, task.tag_id);
         }
 
         tasksList.appendChild(li);
+    });
+}
+
+function createTagSelector(currentTagId, currentColor) {
+    return `
+        <div class="tag-selector">
+            <div class="tag-color" style="background-color: ${currentColor}" data-tag-id="${currentTagId || ''}">
+                <div class="tag-dropdown">
+                    ${colors.map(color => `
+                        <div class="tag-option" style="background-color: ${color}" data-color="${color}"></div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function setupTagSelector(taskElement, taskId, currentTagId) {
+    const tagColor = taskElement.querySelector('.tag-color');
+    const dropdown = taskElement.querySelector('.tag-dropdown');
+    
+    // Toggle dropdown on click
+    tagColor.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('show');
+    });
+    
+    // Handle tag option selection
+    dropdown.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('tag-option')) {
+            e.stopPropagation();
+            const selectedColor = e.target.dataset.color;
+            await updateTaskTag(taskId, selectedColor);
+            dropdown.classList.remove('show');
+        }
+    });
+    
+    // Handle tag name editing (double-click)
+    tagColor.addEventListener('dblclick', async (e) => {
+        e.stopPropagation();
+        if (currentTagId) {
+            await editTagName(currentTagId, tagColor);
+        }
+    });
+    
+    // Close dropdown when clicking elsewhere
+    document.addEventListener('click', () => {
+        dropdown.classList.remove('show');
+    });
+}
+
+async function updateTaskTag(taskId, color) {
+    try {
+        // Find the tag ID for this color
+        const userTag = window.userTags?.find(tag => tag.color === color);
+        if (!userTag) {
+            console.error('Tag not found for color:', color);
+            return;
+        }
+        
+        const { error } = await supabase
+            .from('tasks_v3')
+            .update({ tag_id: userTag.id })
+            .eq('id', taskId);
+
+        if (error) throw error;
+
+        loadTasks(); // Reload to show updated tag
+    } catch (error) {
+        console.error('Error updating task tag:', error);
+    }
+}
+
+async function editTagName(tagId, tagElement) {
+    const currentTag = window.userTags?.find(tag => tag.id === tagId);
+    if (!currentTag) return;
+    
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentTag.tag_name;
+    input.className = 'tag-edit-input';
+    input.style.position = 'absolute';
+    input.style.top = '0';
+    input.style.left = '0';
+    input.style.width = '100px';
+    input.style.zIndex = '1000';
+    input.style.border = '1px solid #ccc';
+    input.style.padding = '2px 4px';
+    input.style.fontSize = '12px';
+    
+    tagElement.appendChild(input);
+    input.focus();
+    input.select();
+    
+    const saveEdit = async () => {
+        const newName = input.value.trim();
+        
+        if (!newName) {
+            alert('Tag name cannot be empty!');
+            input.focus();
+            return;
+        }
+        
+        if (newName === currentTag.tag_name) {
+            cancelEdit();
+            return;
+        }
+        
+        try {
+            const { error } = await supabase
+                .from('tags_v3')
+                .update({ tag_name: newName })
+                .eq('id', tagId);
+
+            if (error) throw error;
+
+            // Update local cache
+            currentTag.tag_name = newName;
+            cancelEdit();
+            loadTasks(); // Reload to show updated name
+            
+        } catch (error) {
+            console.error('Error updating tag name:', error);
+            alert('Failed to update tag name. Please try again.');
+            input.focus();
+        }
+    };
+    
+    const cancelEdit = () => {
+        if (tagElement.contains(input)) {
+            tagElement.removeChild(input);
+        }
+    };
+    
+    input.addEventListener('blur', () => {
+        setTimeout(saveEdit, 100);
+    });
+    
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveEdit();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            cancelEdit();
+        }
     });
 }
 
@@ -153,9 +370,6 @@ async function editTask(taskElement, taskId, currentText) {
             taskContentSpan.textContent = newText;
             cancelEdit();
             
-            // Optionally reload tasks to ensure consistency
-            // loadTasks();
-            
         } catch (error) {
             console.error('Error updating task:', error);
             alert('Failed to update task. Please try again.');
@@ -197,7 +411,6 @@ async function editTask(taskElement, taskId, currentText) {
     input.addEventListener('keydown', handleKeydown);
 }
 
-
 async function addTask() {
     const taskInput = document.getElementById('taskInput');
     const taskText = taskInput.value.trim();
@@ -213,7 +426,8 @@ async function addTask() {
             .insert([{
                 user_id: currentUser.id,
                 task_text: taskText,
-                is_done: false
+                is_done: false,
+                tag_id: null // Default to no tag
             }])
             .select();
 
@@ -280,6 +494,13 @@ async function removeTask(taskElement) {
     }
 }
 
+// Initialize tags when user logs in
+async function initializeTags() {
+    if (currentUser) {
+        await loadUserTags();
+    }
+}
+
 // Affirmation functions
 function getRandomAffirmation() {
     const randomIndex = Math.floor(Math.random() * affirmations.length);
@@ -302,4 +523,3 @@ function showAffirmation() {
         }, 1000);
     }, 2000);
 }
-
