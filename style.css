@@ -315,7 +315,7 @@ li.finished {
 
 .tag-filter:nth-child(1) .tag-filter-color {
     background: transparent; 
-    color: #333;
+    color: white;
     font-weight: bold;
     padding: 6px 12px;
     font-size: 12px;
@@ -331,7 +331,7 @@ li.finished {
 
 .tag-filter:nth-child(3) .tag-filter-color {
     background: #77DD77; /* green */
-    color: #333; /* dark text for contrast */
+    color: white; /* dark text for contrast #333*/
     font-weight: bold;
     padding: 6px 12px;
     font-size: 12px;
@@ -347,7 +347,7 @@ li.finished {
 
 .tag-filter:nth-child(5) .tag-filter-color {
     background: #FFEAA7; /* yellow */
-    color: #333; /* dark text for contrast */
+    color: white; /* dark text for contrast */
     font-weight: bold;
     padding: 6px 12px;
     font-size: 12px;
@@ -363,13 +363,13 @@ li.finished {
 
 
 /* Color-specific text colors for tag filters (same as task tags) */
-.tag-filter-color[style*="#FFEAA7"] {
-    color: #333 !important; /* Dark text for light yellow background */
-}
+/* .tag-filter-color[style*="#FFEAA7"] { */
+/*    color: #333 !important; /* Dark text for light yellow background */
+/*} */
 
-.tag-filter-color[style*="#77DD77"] {
-    color: #333 !important; /* Dark text for light green background */
-}
+/*.tag-filter-color[style*="#77DD77"] { */
+/*    color: #333 !important; /* Dark text for light green background */
+/*} */
 
 /* Tag name edit input in filter bar */
 .tag-name-edit-input {
