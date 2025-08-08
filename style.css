@@ -962,3 +962,7 @@ canvas {
     border-radius: 10px;
     backdrop-filter: blur(10px);
 }
+
+.Calc-Game-link a {
+    color: white;
+}
