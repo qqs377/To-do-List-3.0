@@ -314,7 +314,8 @@ li.finished {
 /* Styling for EACH filter */
 
 .tag-filter:nth-child(1) .tag-filter-color {
-    background: transparent; 
+    background: transparent !important; 
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
     color: white;
     font-weight: bold;
     padding: 6px 12px;
