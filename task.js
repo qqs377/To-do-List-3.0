@@ -66,7 +66,7 @@ function getDefaultTagName(color) {
         '#FF6B6B': 'Priority',
         '#77DD77': 'Work',
         '#45B7D1': 'Personal',
-        '#FFEAA7': 'Learning',
+        '#f7ac3b': 'Learning',
         '#DDA0DD': 'Fun'
     };
     return defaultNames[color] || 'Unnamed';
