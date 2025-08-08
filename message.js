@@ -44,7 +44,7 @@ function createMessageElement(message) {
     messageDiv.style.left = randomX + '%';
     messageDiv.style.top = randomY + '%';
 
-    const colors = ['#FF6B6B', '#77DD77', '#45B7D1', '#FFEAA7', '#DDA0DD'];
+    const colors = ['#FF6B6B', '#77DD77', '#45B7D1', '#f7ac3b', '#DDA0DD'];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
     const canDelete = currentUser && message.user_id === currentUser.id;
