@@ -311,14 +311,56 @@ li.finished {
     border-color: rgba(255, 255, 255, 0.6);
 }
 
-/* Special styling for "All" filter */
-.tag-filter .tag-filter-color:first-child {
-    background: linear-gradient(45deg, #FF6B6B, #77DD77, #45B7D1, #FFEAA7, #DDA0DD) !important;
+/* Styling for EACH filter */
+
+.tag-filter:nth-child(1) .tag-filter-color {
+    background: transparent; 
+    color: #333;
+    font-weight: bold;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.tag-filter:nth-child(2) .tag-filter-color {
+    background: #FF6B6B; /* red */
     color: white;
     font-weight: bold;
     padding: 6px 12px;
     font-size: 12px;
 }
+
+.tag-filter:nth-child(3) .tag-filter-color {
+    background: #77DD77; /* green */
+    color: #333; /* dark text for contrast */
+    font-weight: bold;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.tag-filter:nth-child(4) .tag-filter-color {
+    background: #45B7D1; /* blue */
+    color: white;
+    font-weight: bold;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.tag-filter:nth-child(5) .tag-filter-color {
+    background: #FFEAA7; /* yellow */
+    color: #333; /* dark text for contrast */
+    font-weight: bold;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.tag-filter:nth-child(6) .tag-filter-color {
+    background: #DDA0DD; /* purple */
+    color: white;
+    font-weight: bold;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
 
 /* Color-specific text colors for tag filters (same as task tags) */
 .tag-filter-color[style*="#FFEAA7"] {
