@@ -141,25 +141,31 @@ function displayTagFilterBar() {
         `;
         
         // Single click to filter
+        let filterClickTimer = null; // for single vs double click
+
+        // Single click to filter
         tagFilter.addEventListener('click', (e) => {
-            if (e.detail === 1) {
-                setTimeout(() => {
-                    if (e.detail === 1) {
-                        currentTagFilter = userTag.id;
-                        filterTasks();
-                        updateTagFilterActiveState();
-                    }
-                }, 300);
-            }
+        // Cancel any pending timer if this is the second click
+            if (filterClickTimer) clearTimeout(filterClickTimer);
+
+            // Delay to check if a double-click happens
+            filterClickTimer = setTimeout(() => {
+            currentTagFilter = userTag.id;
+            filterTasks();
+            updateTagFilterActiveState();
+            filterClickTimer = null;
+            }, 250); // adjust to match your other dblclick delay
         });
-        
+
         // Double click to edit
         tagFilter.addEventListener('dblclick', (e) => {
             e.preventDefault();
+            if (filterClickTimer) clearTimeout(filterClickTimer); // prevent single click firing
             editTagNameInFilter(userTag.id, tagFilter.querySelector('.tag-filter-color'));
         });
-        
+
         tagFilterBar.appendChild(tagFilter);
+
     });
     
     // Insert before tasks list
