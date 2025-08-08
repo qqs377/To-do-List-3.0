@@ -1,5 +1,5 @@
 // Constants - Reduced to 5 colors
-const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFEAA7', '#DDA0DD'];
+const colors = ['#FF6B6B', '#77DD77', '#45B7D1', '#FFEAA7', '#DDA0DD'];
 
 // Task functions
 async function loadTasks() {
