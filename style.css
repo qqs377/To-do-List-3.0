@@ -549,8 +549,12 @@ li:has(.tag-display[style*="#FF6B6B"]) {
     
     /* Special styling for "All" filter on mobile */
     .tag-filter .tag-filter-color:first-child {
-        padding: 4px 8px;
-        font-size: 11px;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        font-weight: bold;
+        padding: 6px 12px;
+        font-size: 12px;
     }
     
     .tag-dropdown {
