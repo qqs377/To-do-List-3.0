@@ -31,7 +31,7 @@ const musicFiles = [
 //    "music/Chopin_Scherzo_no.1_op.20_byYejunKim.mp3",
 //    "music/Meditation_de_Thais_1_byYejunKim.mp3",
 //    "music/Wieniaski_Scherzo_Tarantella_byYejunKim.mp3"
-    "music/보여줄게_byAilee.mp3",
+    "music/给你看_byAilee.mp3",
     "music/Heaven_byAilee.mp3",
     "music/Monster_byBIGBANG.mp3",
     "music/Lies_byBIGBANG.mp3",
