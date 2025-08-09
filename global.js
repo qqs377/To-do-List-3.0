@@ -49,7 +49,7 @@ const musicFiles = [
     "music/Cry_Cry_byT-ara.mp3",
     "music/Lovey-dovey_byT-ara.mp3",
     "music/Roly-Poly_byT-ara.mp3",
-    "music/우리_사랑했잖아_byT-ara.mp3",
+    "music/我们不是相爱吗_byT-ara.mp3",
     "music/NU_ABO_byf(x).mp3",
     "music/Electric_Shock_byf(x).mp3",
     "music/BONAMANA_bySuperJunior.mp3",
@@ -59,10 +59,10 @@ const musicFiles = [
     "music/Sexy_Free_Single_bySuperJunior.mp3",
     "music/Super_Girl_bySuperJunior.mp3",
     "music/One_Love_by淑熙.mp3",
-    "music/Suddenly_by김보경.mp3",
-    "music/Sad_run_by오준성.mp3",
-    "music/So_goodbye_by김종현.mp3",
-    "music/Dont_cry_my_love_by차은우.mp3"
+    "music/Suddenly_by金宝京.mp3",
+    "music/Sad_run_by城市猎人.mp3",
+    "music/So_goodbye_by金钟铉.mp3",
+    "music/Dont_cry_my_love_by车银优.mp3"
 ];
 
 // Affirmations list
