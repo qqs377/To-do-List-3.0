@@ -45,7 +45,7 @@ const musicFiles = [
     "music/Overdose_byEXO.mp3",
     "music/Growl_byEXO.mp3",
     "music/Trouble_Maker_byTroubleMaker.mp3",
-    "music/Day_by_day_byT-ara.mp3",
+    "music/Day_yb_day_byT-ara.mp3",
     "music/Cry_Cry_byT-ara.mp3",
     "music/Lovey-dovey_byT-ara.mp3",
     "music/Roly-Poly_byT-ara.mp3",
