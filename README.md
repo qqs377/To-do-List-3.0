@@ -11,3 +11,4 @@
 12. Now support Pomodoro count down display in the tab title
 13. Now support message likes
 14. Now support tags and task priority
+15. Now support game room
