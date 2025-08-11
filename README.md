@@ -5,7 +5,7 @@
 3. Now support Leaderboards with daily, weekly and all time display
 4. Now users can manage their own tasks and messages
 5. Now support double click to edit task
-6. Now support task filter
+6. Now support task filter, double click to edit tag name
 7. Now support Yejun's music
 8. Now users can choose music to play
 12. Now support Pomodoro count down display in the tab title
