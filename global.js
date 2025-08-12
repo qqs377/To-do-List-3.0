@@ -15,6 +15,25 @@ let currentSongIndex = 0;
 let currentTaskFilter = 'all';
 let currentUserFilter = '';
 
+// for pet
+const pet = document.getElementById('virtualPet');
+const petSprite = document.getElementById('petSprite');
+const notificationsContainer = document.getElementById('petNotifications');
+
+const PET_IMAGES = {
+    idle: 'cat_idle.png',
+    walk: 'cat_walk.gif',
+    happy: 'cat_happy.gif',
+    sleep: 'cat_sleep.gif'
+};
+
+let lastInteraction = Date.now();
+let idleTimer;
+let moveInterval;
+
+// Start pet system
+initPet();
+
 // Music files list - you can expand this or make it dynamic
 const musicFiles = [
 //    "music/404_患者_byLinkFu.mp3",
