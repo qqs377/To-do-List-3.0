@@ -1,5 +1,3 @@
-// Simple virtual pet
-
 const pet = document.getElementById('virtualPet');
 const petSprite = document.getElementById('petSprite');
 const notificationsContainer = document.getElementById('petNotifications');
@@ -12,37 +10,58 @@ const PET_IMAGES = {
 };
 
 let lastInteraction = Date.now();
-let idleTimer;
 let moveInterval;
+let idleTimer;
 
-// Start pet system
+const IDLE_TIME_TO_SLEEP = 30000; // 30 seconds
+const MOVE_INTERVAL_NORMAL = 5000; // 5 seconds
+const MOVE_INTERVAL_SLEEP = 30000; // 30 seconds
+
 initPet();
 
 function initPet() {
     pet.style.left = '100px';
     pet.style.top = '100px';
 
-    // Click makes pet happy
     pet.addEventListener('click', () => {
-        setPetState('happy');
         lastInteraction = Date.now();
-        showPetNotification('Purr~');
-        setTimeout(() => setPetState('idle'), 1000);
+        if (currentState === 'sleep') {
+            // Wake up pet
+            setPetState('happy');
+            showPetNotification('Yawn... I’m awake now! 😺');
+            restartMovement(MOVE_INTERVAL_NORMAL);
+            setTimeout(() => setPetState('idle'), 1000);
+        } else {
+            setPetState('happy');
+            showPetNotification('Purr~');
+            setTimeout(() => setPetState('idle'), 1000);
+        }
     });
 
-    // Move pet periodically
-    moveInterval = setInterval(movePet, 5000);
+    startMovement(MOVE_INTERVAL_NORMAL);
 
-    // Idle check
     idleTimer = setInterval(checkIdle, 1000);
 }
 
+let currentState = 'idle';
+
+function startMovement(interval) {
+    if (moveInterval) clearInterval(moveInterval);
+    moveInterval = setInterval(movePet, interval);
+}
+
+function restartMovement(interval) {
+    startMovement(interval);
+}
+
 function movePet() {
+    if (currentState === 'sleep') return; // don't move if sleeping
+
     setPetState('walk');
     showPetNotification('Exploring...');
 
-    const maxX = window.innerWidth - 100;
-    const maxY = window.innerHeight - 100;
+    const maxX = window.innerWidth - petSprite.clientWidth;
+    const maxY = window.innerHeight - petSprite.clientHeight;
 
     const newX = Math.random() * maxX;
     const newY = Math.random() * maxY;
@@ -50,14 +69,13 @@ function movePet() {
     pet.style.left = `${newX}px`;
     pet.style.top = `${newY}px`;
 
-    pet.addEventListener('transitionend', onMoveEnd, { once: true });
-}
-
-function onMoveEnd() {
-    setPetState('idle');
+    pet.addEventListener('transitionend', () => {
+        setPetState('idle');
+    }, { once: true });
 }
 
 function setPetState(state) {
+    currentState = state;
     switch (state) {
         case 'walk':
             petSprite.src = PET_IMAGES.walk;
@@ -75,9 +93,11 @@ function setPetState(state) {
 
 function checkIdle() {
     const timeSinceInteraction = Date.now() - lastInteraction;
-    if (timeSinceInteraction > 10000) { // 10 seconds of no clicks
+    if (timeSinceInteraction > IDLE_TIME_TO_SLEEP && currentState !== 'sleep') {
         setPetState('sleep');
         showPetNotification('Zzz...');
+        // Slow down movement when sleeping
+        restartMovement(MOVE_INTERVAL_SLEEP);
     }
 }
 
@@ -91,5 +111,5 @@ function showPetNotification(message) {
         if (notification.parentNode) {
             notification.parentNode.removeChild(notification);
         }
-    }, 5000);
+    }, 3000);
 }
