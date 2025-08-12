@@ -21,10 +21,10 @@ const petSprite = document.getElementById('petSprite');
 const notificationsContainer = document.getElementById('petNotifications');
 
 const PET_IMAGES = {
-    idle: 'cat_idle.png',
-    walk: 'cat_walk.gif',
-    happy: 'cat_happy.gif',
-    sleep: 'cat_sleep.gif'
+    idle: 'pet/cat_idle.png',
+    walk: 'pet/cat_walk.gif',
+    happy: 'pet/cat_happy.gif',
+    sleep: 'pet/cat_sleep.gif'
 };
 
 let lastInteraction = Date.now();
