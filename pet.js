@@ -1,5 +1,23 @@
 // Simple virtual pet
 
+const pet = document.getElementById('virtualPet');
+const petSprite = document.getElementById('petSprite');
+const notificationsContainer = document.getElementById('petNotifications');
+
+const PET_IMAGES = {
+    idle: 'pet/cat_idle.png',
+    walk: 'pet/cat_walk.gif',
+    happy: 'pet/cat_happy.gif',
+    sleep: 'pet/cat_sleep.gif'
+};
+
+let lastInteraction = Date.now();
+let idleTimer;
+let moveInterval;
+
+// Start pet system
+initPet();
+
 function initPet() {
     pet.style.left = '100px';
     pet.style.top = '100px';
