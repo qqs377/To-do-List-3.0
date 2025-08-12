@@ -43,6 +43,7 @@ function initPet() {
     idleTimer = setInterval(checkIdle, 1000);
 }
 
+let lastX = 0;
 let currentState = 'idle';
 
 function startMovement(interval) {
@@ -64,6 +65,18 @@ function movePet() {
 
     const newX = Math.random() * maxX;
     const newY = Math.random() * maxY;
+
+     if (newX > lastX) {
+        petSprite.src = PET_IMAGES.walk; // or your walking gif
+        petSprite.classList.remove('walk-left');
+        petSprite.classList.add('walk-right');
+    } else {
+        petSprite.src = PET_IMAGES.walk;
+        petSprite.classList.remove('walk-right');
+        petSprite.classList.add('walk-left');
+    }
+
+    lastX = newX;
 
     pet.style.left = `${newX}px`;
     pet.style.top = `${newY}px`;
