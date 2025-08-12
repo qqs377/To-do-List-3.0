@@ -28,7 +28,7 @@ function initPet() {
         if (currentState === 'sleep') {
             // Wake up pet
             setPetState('happy');
-            showPetNotification('Yawn... I’m awake now! 😺');
+            showPetNotification('Purr~');
             restartMovement(MOVE_INTERVAL_NORMAL);
             setTimeout(() => setPetState('idle'), 1000);
         } else {
@@ -58,7 +58,6 @@ function movePet() {
     if (currentState === 'sleep') return; // don't move if sleeping
 
     setPetState('walk');
-    showPetNotification('Exploring...');
 
     const maxX = window.innerWidth - petSprite.clientWidth;
     const maxY = window.innerHeight - petSprite.clientHeight;
@@ -95,7 +94,6 @@ function checkIdle() {
     const timeSinceInteraction = Date.now() - lastInteraction;
     if (timeSinceInteraction > IDLE_TIME_TO_SLEEP && currentState !== 'sleep') {
         setPetState('sleep');
-        showPetNotification('Zzz...');
         // Slow down movement when sleeping
         restartMovement(MOVE_INTERVAL_SLEEP);
     }
