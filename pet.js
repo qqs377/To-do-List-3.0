@@ -8,7 +8,7 @@ function initPet() {
     pet.addEventListener('click', () => {
         setPetState('happy');
         lastInteraction = Date.now();
-        showPetNotification('Your pet is happy! 😺');
+        showPetNotification('Purr~');
         setTimeout(() => setPetState('idle'), 1000);
     });
 
@@ -21,6 +21,7 @@ function initPet() {
 
 function movePet() {
     setPetState('walk');
+    showPetNotification('Exploring...');
 
     const maxX = window.innerWidth - 100;
     const maxY = window.innerHeight - 100;
@@ -58,6 +59,7 @@ function checkIdle() {
     const timeSinceInteraction = Date.now() - lastInteraction;
     if (timeSinceInteraction > 10000) { // 10 seconds of no clicks
         setPetState('sleep');
+        showPetNotification('Zzz...');
     }
 }
 
