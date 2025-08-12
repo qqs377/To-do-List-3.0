@@ -1,3 +1,7 @@
+const pet = document.getElementById('virtualPet');
+const petSprite = document.getElementById('petSprite');
+const notificationsContainer = document.getElementById('petNotifications');
+
 const PET_IMAGES = {
     idle: 'pet/cat_idle.png',
     walk: 'pet/cat_walk.gif',
@@ -16,9 +20,6 @@ const MOVE_INTERVAL_SLEEP = 30000; // 30 seconds
 initPet();
 
 function initPet() {
-    const pet = document.getElementById('virtualPet');
-    const petSprite = document.getElementById('petSprite');
-    const notificationsContainer = document.getElementById('petNotifications');
     
     const petContainer = document.getElementById('petContainer');
     const toggleBtn = document.getElementById('togglePetBtn');
