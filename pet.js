@@ -19,6 +19,20 @@ const MOVE_INTERVAL_SLEEP = 30000; // 30 seconds
 
 initPet();
 
+const petContainer = document.getElementById('petContainer');
+const toggleBtn = document.getElementById('togglePetBtn');
+
+toggleBtn.addEventListener('click', () => {
+  if (petContainer.style.display === 'none') {
+    petContainer.style.display = 'block';
+    toggleBtn.textContent = 'Hide Pet';
+  } else {
+    petContainer.style.display = 'none';
+    toggleBtn.textContent = 'Show Pet';
+  }
+});
+
+
 function initPet() {
     pet.style.left = '100px';
     pet.style.top = '100px';
