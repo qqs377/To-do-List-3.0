@@ -31,6 +31,15 @@
     <!-- Main Application -->
     <div id="appContainer" class="app-container">
         <button class="logout-btn" onclick="logout()">Logout</button>
+
+         <!-- Pet -->
+        <div id="petContainer" class="pet-container">
+            <div id="virtualPet" class="virtual-pet">
+                <img id="petSprite" class="pet-sprite" src="pet/cat_idle.png" alt="Pet">
+            </div>
+        </div>
+
+        <div id="petNotifications" class="pet-notifications"></div>
         
         <h1 id="myHeader">TO DO List</h1>
         <div class="user-info">You rock, <span id="currentUser"></span>!</div>
@@ -133,15 +142,6 @@
                 <div class="song-item">Loading songs...</div>
             </div>
         </div>
-
-        <!-- Pet -->
-        <div id="petContainer" class="pet-container">
-            <div id="virtualPet" class="virtual-pet">
-                <img id="petSprite" class="pet-sprite" src="pet/cat_idle.png" alt="Pet">
-            </div>
-        </div>
-
-        <div id="petNotifications" class="pet-notifications"></div>
         
     </div>
 
