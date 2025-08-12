@@ -985,7 +985,7 @@ canvas {
 .virtual-pet {
     position: absolute;
     pointer-events: auto;
-    transition: left 1s linear, top 1s linear;
+    transition: left 3s linear, top 3s linear;
 }
 
 
