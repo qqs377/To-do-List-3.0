@@ -12,3 +12,4 @@
 13. Now support message likes
 14. Now support tags and task priority
 15. Now support game room
+16. Now support pet
