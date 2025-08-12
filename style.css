@@ -997,6 +997,14 @@ canvas {
   max-height: none;
 }
 
+.walk-left {
+    transform: scaleX(1);  
+}
+
+.walk-right {
+    transform: scaleX(-1);/* flips image horizontally */
+}
+
 
 /* Notifications */
 .pet-notifications {
