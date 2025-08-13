@@ -541,41 +541,63 @@ const imageConfigs = [
 ];
 
 function loadImageWithFallback(config) {
-    if (!particleSystem) return;
+    // Check if particle system exists and is properly initialized
+    if (!particleSystem || !particleSystem.hasInit) {
+        console.warn('Particle system not ready for image change');
+        return;
+    }
     
     const img = new Image();
     img.onload = function() {
-        particleSystem.ChangeImg(config.src, {
-            ...config.options,
-            w: img.width,
-            h: img.height
-        });
+        // Double-check particle system still exists before calling ChangeImg
+        if (particleSystem && typeof particleSystem.ChangeImg === 'function') {
+            particleSystem.ChangeImg(config.src, {
+                ...config.options,
+                w: img.width,
+                h: img.height
+            });
+        }
     };
     img.onerror = function() {
-        // Fallback to generated pattern
-        const fallbackImage = createFallbackImage(
-            config.options.w, 
-            config.options.h, 
-            config.fallbackPattern
-        );
-        particleSystem.ChangeImg(fallbackImage, config.options);
+        // Double-check particle system still exists before calling ChangeImg
+        if (particleSystem && typeof particleSystem.ChangeImg === 'function') {
+            const fallbackImage = createFallbackImage(
+                config.options.w, 
+                config.options.h, 
+                config.fallbackPattern
+            );
+            particleSystem.ChangeImg(fallbackImage, config.options);
+        }
     };
     img.src = config.src;
 }
 
 function rotateToNextImage() {
-    if (!particleSystem) return;
+    // Check if particle system exists and user is not logged in
+    if (!particleSystem || isLoggedIn || !particleSystem.hasInit) {
+        return;
+    }
     
     loadImageWithFallback(imageConfigs[currentImageIndex]);
     currentImageIndex = (currentImageIndex + 1) % imageConfigs.length;
 }
 
 function startImageRotation() {
-    // Load first image immediately
-    rotateToNextImage();
+    // Don't start if logged in or particle system doesn't exist
+    if (isLoggedIn || !particleSystem) {
+        return;
+    }
     
-    // Set up automatic rotation every 3 seconds
-    imageRotationTimer = setInterval(rotateToNextImage, 3000);
+    // Wait a bit for particle system to fully initialize before starting rotation
+    setTimeout(() => {
+        if (!isLoggedIn && particleSystem && particleSystem.hasInit) {
+            // Load first image immediately
+            rotateToNextImage();
+            
+            // Set up automatic rotation every 3 seconds
+            imageRotationTimer = setInterval(rotateToNextImage, 30000);
+        }
+    }, 500); // Wait 500ms for initialization
 }
 
 function stopImageRotation() {
@@ -583,6 +605,33 @@ function stopImageRotation() {
         clearInterval(imageRotationTimer);
         imageRotationTimer = null;
     }
+}
+
+// Function to stop particle system after login
+function stopParticleSystem() {
+    // Stop image rotation first
+    stopImageRotation();
+    
+    if (particleSystem) {
+        particleSystem.PreDestory(() => {
+            console.log('Particle system stopped after login');
+        });
+        particleSystem = null;
+    }
+    
+    // Hide the auth modal and canvas
+    const authModal = document.getElementById('authModal');
+    const particleCanvas = document.getElementById('particleCanvas');
+    
+    if (authModal) {
+        authModal.style.display = 'none';
+    }
+    
+    if (particleCanvas) {
+        particleCanvas.style.display = 'none';
+    }
+    
+    isLoggedIn = true;
 }
 
 // Add placeholder handleAuth function if it doesn't exist
