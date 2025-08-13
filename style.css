@@ -17,7 +17,6 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.8);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -25,14 +24,16 @@ body {
 }
 
 .auth-container {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.1); /* Transparent background */
+    backdrop-filter: blur(12px); /* Blur the particles behind */
     padding: 30px;
     border-radius: 15px;
     text-align: center;
-    color: black;
+    color: white;
     min-width: 300px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     z-index: 1;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .auth-container h2 {
@@ -44,9 +45,11 @@ body {
     width: 100%;
     padding: 12px;
     margin: 10px 0;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 8px;
     font-size: 16px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
     box-sizing: border-box;
 }
 
@@ -54,17 +57,18 @@ body {
     width: 100%;
     padding: 12px;
     margin: 10px 0;
-    background: #4CAF50;
+    background: rgba(76, 175, 80, 0.85);
     color: white;
     border: none;
     border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background 0.3s, transform 0.1s;
 }
 
 .auth-container button:hover {
-    background: #45a049;
+    background: rgba(69, 160, 73, 0.95);
+    transform: scale(1.02);
 }
 
 .error-message {
@@ -93,7 +97,8 @@ body {
     height: 100vh;
     z-index: 0;
     background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
-    pointer-events: none; /* Allow clicks to pass through to elements below */
+    pointer-events: none;
+    animation: particleFadeIn 1s ease-in-out;
 }
 
 /* Particle canvas animations */
