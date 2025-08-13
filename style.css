@@ -7,6 +7,10 @@ body {
     z-index: 1;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
+    position: relative;
+    width: 100vw;
+    height: 100vh;
 }
 
 /* Authentication Modal */
@@ -14,8 +18,8 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     overflow: hidden;
     display: flex;
     justify-content: center;
@@ -32,8 +36,9 @@ body {
     color: white;
     min-width: 300px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    z-index: 1;
+    z-index: 10001;
     border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
 }
 
 .auth-container h2 {
@@ -51,6 +56,10 @@ body {
     background: rgba(255, 255, 255, 0.15);
     color: white;
     box-sizing: border-box;
+}
+
+.auth-container input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .auth-container button {
@@ -88,17 +97,19 @@ body {
     line-height: 1.3;
 }
 
-/* Particle Canvas Styles */
+/* FIXED: Particle Canvas Styles - Full page coverage */
 #particleCanvas {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 1;
     background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
-    pointer-events: none;
+    /* FIXED: Enable pointer events for mouse interaction */
+    pointer-events: auto;
     animation: particleFadeIn 1s ease-in-out;
+    display: block;
 }
 
 /* Particle canvas animations */
@@ -107,15 +118,42 @@ body {
     to { opacity: 1; }
 }
 
-#particleCanvas {
-    animation: particleFadeIn 1s ease-in-out;
+/* Control buttons for testing particle effects */
+.controls {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10002;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-/* Ensure particle canvas doesn't interfere with scrolling */
-body {
-    position: relative;
+.controls button {
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    font-size: 14px;
+    transition: background 0.3s, transform 0.1s;
 }
 
+.controls button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+/* Ensure full viewport coverage */
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
 
 /* Main App Styles */
 .app-container {
