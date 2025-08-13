@@ -187,12 +187,12 @@ async function handleAuth() {
     const password = document.getElementById('authPassword').value;
     const confirmPassword = document.getElementById('authConfirmPassword').value;
     const errorElement = document.getElementById('authError');
-
+    
     if (!name) {
         errorElement.textContent = 'Please enter your name';
         return;
     }
-
+    
     try {
         // Check if user exists
         const { data: existingUser, error } = await supabase
@@ -200,14 +200,14 @@ async function handleAuth() {
             .select('*')
             .eq('username', name)
             .single();
-
+            
         if (existingUser) {
             // User exists, verify password
             if (!password) {
                 showPasswordInput();
                 return;
             }
-
+            
             if (existingUser.password === password) {
                 // Update last login time
                 await supabase
@@ -219,7 +219,10 @@ async function handleAuth() {
                 currentUser = { ...existingUser, last_login: new Date().toISOString() };
                 
                 // Check for calendar-based resets (affects all users)
-//                await checkCalendarResets(); //supabase does not have this function, need to fix
+                // await checkCalendarResets(); //supabase does not have this function, need to fix
+                
+                // STOP PARTICLE SYSTEM AFTER SUCCESSFUL LOGIN
+                stopParticleSystem();
                 
                 showMainApp();
             } else {
@@ -231,17 +234,17 @@ async function handleAuth() {
                 showPasswordCreation();
                 return;
             }
-
+            
             if (password !== confirmPassword) {
                 errorElement.textContent = 'Passwords do not match';
                 return;
             }
-
+            
             if (password.length < 4) {
                 errorElement.textContent = 'Password must be at least 4 characters';
                 return;
             }
-
+            
             // Create new user
             const { data: newUser, error: createError } = await supabase
                 .from('users_v3')
@@ -258,13 +261,16 @@ async function handleAuth() {
                 }])
                 .select()
                 .single();
-
+                
             if (createError) throw createError;
-
+            
             currentUser = newUser;
-
+            
             // Check for calendar-based resets (affects all users)
             await checkCalendarResets();
+            
+            // STOP PARTICLE SYSTEM AFTER SUCCESSFUL REGISTRATION
+            stopParticleSystem();
             
             showMainApp();
         }
