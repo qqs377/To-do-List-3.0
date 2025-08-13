@@ -451,6 +451,9 @@ function createFallbackImage(width, height, pattern) {
 
 // FIXED: Initialize particle system when page loads (only if not logged in)
 document.addEventListener('DOMContentLoaded', function() {
+    // Clear any existing timers from previous page loads
+    clearAllTimers();
+    
     // Don't start particles if user is already logged in
     if (isLoggedIn) return;
     
@@ -492,6 +495,15 @@ document.addEventListener('DOMContentLoaded', function() {
 // Automatic image rotation system
 let currentImageIndex = 0;
 let imageRotationTimer = null;
+
+// Ensure only one timer runs at a time
+function clearAllTimers() {
+    if (imageRotationTimer) {
+        clearInterval(imageRotationTimer);
+        imageRotationTimer = null;
+        console.log('Cleared existing image rotation timer');
+    }
+}
 
 const imageConfigs = [
     {
@@ -599,23 +611,25 @@ function startImageRotation() {
         return;
     }
     
+    // IMPORTANT: Clear any existing timer first
+    clearAllTimers();
+    
     // Wait a bit for particle system to fully initialize before starting rotation
     setTimeout(() => {
         if (!isLoggedIn && particleSystem && particleSystem.hasInit) {
             // Load first image immediately
             rotateToNextImage();
             
-            // Set up automatic rotation every 3 seconds
+            // Set up automatic rotation every 5 minutes (300000ms)
             imageRotationTimer = setInterval(rotateToNextImage, 300000);
+            console.log('Started image rotation with 5-minute interval (timer ID:', imageRotationTimer, ')');
         }
     }, 500); // Wait 500ms for initialization
 }
 
 function stopImageRotation() {
-    if (imageRotationTimer) {
-        clearInterval(imageRotationTimer);
-        imageRotationTimer = null;
-    }
+    clearAllTimers();
+    console.log('Image rotation stopped');
 }
 
 // Function to stop particle system after login
