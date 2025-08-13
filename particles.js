@@ -545,7 +545,7 @@ function startImageRotation() {
     rotateToNextImage();
     
     // Set up automatic rotation every 3 seconds
-    imageRotationTimer = setInterval(rotateToNextImage, 3000);
+    imageRotationTimer = setInterval(rotateToNextImage, 30000);
 }
 
 function stopImageRotation() {
