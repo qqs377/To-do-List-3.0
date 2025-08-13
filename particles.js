@@ -181,18 +181,33 @@ class DameDaneParticle {
     // FIXED: Proper canvas resizing method
     resizeCanvas() {
         const canvas = this.canvasEle;
-        const rect = canvas.getBoundingClientRect();
+        
+        // Force canvas to fill entire viewport
+        const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+        const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
         
         // Set canvas internal dimensions to match display size
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvas.width = vw;
+        canvas.height = vh;
         
-        // Ensure canvas style matches viewport
+        // Ensure canvas style matches viewport with important flags
+        canvas.style.position = 'fixed';
+        canvas.style.top = '0px';
+        canvas.style.left = '0px';
         canvas.style.width = '100vw';
         canvas.style.height = '100vh';
+        canvas.style.margin = '0';
+        canvas.style.padding = '0';
+        canvas.style.display = 'block';
+        canvas.style.zIndex = '1';
+        
+        // Force a reflow
+        canvas.offsetHeight;
         
         this.w = canvas.width;
         this.h = canvas.height;
+        
+        console.log(`Canvas resized to: ${canvas.width}x${canvas.height}, Viewport: ${vw}x${vh}`);
     }
 
     // FIXED: Create fallback pattern when images don't exist
@@ -342,6 +357,8 @@ class DameDaneParticle {
         cancelAnimationFrame(this.animeId);
         this.PointArr = [];
         this.ctx.clearRect(0, 0, this.canvasEle.width, this.canvasEle.height);
+        // Stop image rotation when destroying
+        stopImageRotation();
         callback && callback();
     }
 }
@@ -426,69 +443,115 @@ document.addEventListener('DOMContentLoaded', function() {
         Ease: 0.15
     }, () => {
         console.log('Particle system initialized successfully');
+        // Start automatic image rotation after initialization
+        startImageRotation();
     });
 });
 
-// FIXED: Particle control functions with better fallbacks
-function switchToCover1() {
-    if (!particleSystem) return;
-    
-    // Try to load the actual image first
-    const img = new Image();
-    img.onload = function() {
-        particleSystem.ChangeImg('./images/cover1.png', { 
-            w: img.width,
-            h: img.height,
-            effectParticleMode: 'adsorption',
-            Thickness: 40,
-            spacing: 1.5
-        });
-    };
-    img.onerror = function() {
-        // Fallback to generated pattern
-        const fallbackImage = createFallbackImage(700, 500, 1);
-        particleSystem.ChangeImg(fallbackImage, { 
+// Automatic image rotation system
+let currentImageIndex = 0;
+let imageRotationTimer = null;
+
+const imageConfigs = [
+    {
+        src: './images/cover1.png',
+        fallbackPattern: 1,
+        options: {
             w: 700,
             h: 500,
             effectParticleMode: 'adsorption',
             Thickness: 40,
             spacing: 1.5
-        });
-    };
-    img.src = './images/cover1.png';
-}
-
-function switchTo2() {
-    if (!particleSystem) return;
-    
-    // Try to load the actual image first
-    const img = new Image();
-    img.onload = function() {
-        particleSystem.ChangeImg('./images/cover2.png', { 
-            w: img.width,
-            h: img.height,
-            effectParticleMode: 'repulsion',
-            Thickness: 30,
-            spacing: 1.2
-        });
-    };
-    img.onerror = function() {
-        // Fallback to generated pattern
-        const fallbackImage = createFallbackImage(500, 400, 2);
-        particleSystem.ChangeImg(fallbackImage, { 
+        }
+    },
+    {
+        src: './images/cover2.png',
+        fallbackPattern: 2,
+        options: {
             w: 500,
             h: 400,
             effectParticleMode: 'repulsion',
             Thickness: 30,
             spacing: 1.2
+        }
+    },
+    {
+        src: './images/cover3.png',
+        fallbackPattern: 1,
+        options: {
+            w: 600,
+            h: 450,
+            effectParticleMode: 'adsorption',
+            Thickness: 35,
+            spacing: 1.3
+        }
+    },
+    {
+        src: './images/cover4.png',
+        fallbackPattern: 2,
+        options: {
+            w: 650,
+            h: 480,
+            effectParticleMode: 'repulsion',
+            Thickness: 25,
+            spacing: 1.4
+        }
+    },
+    {
+        src: './images/cover5.png',
+        fallbackPattern: 1,
+        options: {
+            w: 550,
+            h: 420,
+            effectParticleMode: 'adsorption',
+            Thickness: 45,
+            spacing: 1.6
+        }
+    }
+];
+
+function loadImageWithFallback(config) {
+    if (!particleSystem) return;
+    
+    const img = new Image();
+    img.onload = function() {
+        particleSystem.ChangeImg(config.src, {
+            ...config.options,
+            w: img.width,
+            h: img.height
         });
     };
-    img.src = './images/cover2.png';
+    img.onerror = function() {
+        // Fallback to generated pattern
+        const fallbackImage = createFallbackImage(
+            config.options.w, 
+            config.options.h, 
+            config.fallbackPattern
+        );
+        particleSystem.ChangeImg(fallbackImage, config.options);
+    };
+    img.src = config.src;
 }
 
-function toggleParticles() {
-    if (particleSystem) {
-        particleSystem.ParticlePolymerize();
+function rotateToNextImage() {
+    if (!particleSystem) return;
+    
+    loadImageWithFallback(imageConfigs[currentImageIndex]);
+    currentImageIndex = (currentImageIndex + 1) % imageConfigs.length;
+}
+
+function startImageRotation() {
+    // Load first image immediately
+    rotateToNextImage();
+    
+    // Set up automatic rotation every 3 seconds
+    imageRotationTimer = setInterval(rotateToNextImage, 3000);
+}
+
+function stopImageRotation() {
+    if (imageRotationTimer) {
+        clearInterval(imageRotationTimer);
+        imageRotationTimer = null;
     }
 }
 
