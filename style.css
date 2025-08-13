@@ -11,7 +11,7 @@ body {
 
 /* Authentication Modal */
 .auth-modal {
-    position: relative;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -25,7 +25,6 @@ body {
 }
 
 .auth-container {
-    position: relative;
     background: rgba(255, 255, 255, 0.95);
     padding: 30px;
     border-radius: 15px;
