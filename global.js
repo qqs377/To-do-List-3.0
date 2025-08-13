@@ -326,7 +326,7 @@ function setRandomBackground() {
         "url('images/background1.png')",
         "url('images/background2.png')",
         "url('images/background3.png')",
-        "url('images/background4.png')",
+     //   "url('images/background4.png')",
         "url('images/background5.png')",
         "url('images/background6.png')",
         "url('images/wlop0.png')",
