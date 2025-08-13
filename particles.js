@@ -361,7 +361,7 @@ function switchToCover1() {
 
 function switchTo2() {
     try {
-        particleSystem.ChangeImg('./images/2.png', { 
+        particleSystem.ChangeImg('./images/cover2.png', { 
             w: 400,
             effectParticleMode: 'repulsion',
             Thickness: 30
@@ -377,41 +377,6 @@ function switchTo2() {
     }
 }
 
-function switchTo3() {
-    try {
-        particleSystem.ChangeImg('./images/3.png', { 
-            w: 500,
-            effectParticleMode: 'adsorption',
-            Thickness: 40
-        });
-    } catch (error) {
-        // Fallback to generated pattern
-        const fallbackImage = createFallbackImage(500, 375, 1);
-        particleSystem.ChangeImg(fallbackImage, { 
-            w: 500,
-            effectParticleMode: 'adsorption',
-            Thickness: 40
-        });
-    }
-}
-
-function switchTo4() {
-    try {
-        particleSystem.ChangeImg('./images/4.png', { 
-            w: 500,
-            effectParticleMode: 'adsorption',
-            Thickness: 40
-        });
-    } catch (error) {
-        // Fallback to generated pattern
-        const fallbackImage = createFallbackImage(500, 375, 1);
-        particleSystem.ChangeImg(fallbackImage, { 
-            w: 500,
-            effectParticleMode: 'adsorption',
-            Thickness: 40
-        });
-    }
-}
 
 function toggleParticles() {
     if (particleSystem) {
