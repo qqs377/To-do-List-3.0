@@ -344,7 +344,8 @@ document.addEventListener('DOMContentLoaded', function() {
 function switchToCover1() {
     try {
         particleSystem.ChangeImg('./images/cover1.png', { 
-            w: 500,
+            w: img.width,
+            h:img.height,
             effectParticleMode: 'adsorption',
             Thickness: 40
         });
@@ -362,7 +363,8 @@ function switchToCover1() {
 function switchTo2() {
     try {
         particleSystem.ChangeImg('./images/cover2.png', { 
-            w: 400,
+            w: img.width,
+            h:img.height,
             effectParticleMode: 'repulsion',
             Thickness: 30
         });
