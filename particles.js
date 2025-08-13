@@ -365,6 +365,31 @@ class DameDaneParticle {
 
 // Initialize particle system
 let particleSystem;
+let isLoggedIn = false;
+
+// Function to stop particle system after login
+function stopParticleSystem() {
+    if (particleSystem) {
+        particleSystem.PreDestory(() => {
+            console.log('Particle system stopped after login');
+        });
+        particleSystem = null;
+    }
+    
+    // Hide the auth modal and canvas
+    const authModal = document.getElementById('authModal');
+    const particleCanvas = document.getElementById('particleCanvas');
+    
+    if (authModal) {
+        authModal.style.display = 'none';
+    }
+    
+    if (particleCanvas) {
+        particleCanvas.style.display = 'none';
+    }
+    
+    isLoggedIn = true;
+}
 
 // FIXED: Create better fallback images
 function createFallbackImage(width, height, pattern) {
@@ -413,8 +438,11 @@ function createFallbackImage(width, height, pattern) {
     return canvas.toDataURL();
 }
 
-// FIXED: Initialize particle system when page loads
+// FIXED: Initialize particle system when page loads (only if not logged in)
 document.addEventListener('DOMContentLoaded', function() {
+    // Don't start particles if user is already logged in
+    if (isLoggedIn) return;
+    
     const canvas = document.getElementById('particleCanvas');
     if (!canvas) {
         console.error('Particle canvas not found');
@@ -443,8 +471,10 @@ document.addEventListener('DOMContentLoaded', function() {
         Ease: 0.15
     }, () => {
         console.log('Particle system initialized successfully');
-        // Start automatic image rotation after initialization
-        startImageRotation();
+        // Only start automatic image rotation if not logged in
+        if (!isLoggedIn) {
+            startImageRotation();
+        }
     });
 });
 
@@ -545,7 +575,7 @@ function startImageRotation() {
     rotateToNextImage();
     
     // Set up automatic rotation every 3 seconds
-    imageRotationTimer = setInterval(rotateToNextImage, 30000);
+    imageRotationTimer = setInterval(rotateToNextImage, 3000);
 }
 
 function stopImageRotation() {
@@ -560,5 +590,17 @@ if (typeof handleAuth === 'undefined') {
     function handleAuth() {
         console.log('Auth function called');
         // Add your authentication logic here
+        
+        // After successful authentication, stop the particle system
+        // You should call stopParticleSystem() in your actual auth logic
+        // For demo purposes, we'll stop it after 1 second
+        setTimeout(() => {
+            stopParticleSystem();
+        }, 1000);
     }
 }
+
+// Function to be called by your actual authentication system
+window.onUserLogin = function() {
+    stopParticleSystem();
+};
