@@ -178,7 +178,7 @@ class DameDaneParticle {
         window.addEventListener('resize', this.$fit);
     }
 
-    // FIXED: Proper canvas resizing method
+    // FIXED: Proper canvas resizing method with aggressive sizing
     resizeCanvas() {
         const canvas = this.canvasEle;
         
@@ -190,24 +190,35 @@ class DameDaneParticle {
         canvas.width = vw;
         canvas.height = vh;
         
-        // Ensure canvas style matches viewport with important flags
-        canvas.style.position = 'fixed';
-        canvas.style.top = '0px';
-        canvas.style.left = '0px';
-        canvas.style.width = '100vw';
-        canvas.style.height = '100vh';
-        canvas.style.margin = '0';
-        canvas.style.padding = '0';
-        canvas.style.display = 'block';
-        canvas.style.zIndex = '1';
+        // Aggressively force canvas style properties
+        canvas.style.cssText = `
+            position: fixed !important;
+            top: 0px !important;
+            left: 0px !important;
+            right: 0px !important;
+            bottom: 0px !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            margin: 0px !important;
+            padding: 0px !important;
+            display: block !important;
+            z-index: 1 !important;
+            min-width: 100vw !important;
+            min-height: 100vh !important;
+            max-width: none !important;
+            max-height: none !important;
+            transform: none !important;
+        `;
         
-        // Force a reflow
+        // Force a reflow and repaint
         canvas.offsetHeight;
+        void canvas.offsetWidth;
         
         this.w = canvas.width;
         this.h = canvas.height;
         
-        console.log(`Canvas resized to: ${canvas.width}x${canvas.height}, Viewport: ${vw}x${vh}`);
+        console.log(`Canvas aggressively resized to: ${canvas.width}x${canvas.height}, Viewport: ${vw}x${vh}`);
+        console.log(`Canvas computed style: width=${getComputedStyle(canvas).width}, height=${getComputedStyle(canvas).height}`);
     }
 
     // FIXED: Create fallback pattern when images don't exist
