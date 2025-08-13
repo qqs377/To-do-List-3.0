@@ -66,7 +66,7 @@ class Point {
     render() {
         const ctx = this.canvas.getContext('2d');
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, 360);
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${this.color},${this.opacity > 1 ? 1 : this.opacity})`;
         ctx.fill();
         ctx.closePath();
@@ -94,12 +94,11 @@ class DameDaneParticle {
         options.Thickness *= options.Thickness;
         const { src } = options;
         
-        this.w = canvas.width;
-        this.h = canvas.height;
         this.canvasEle = canvas;
         this.ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        
+        // FIXED: Ensure canvas fills entire viewport
+        this.resizeCanvas();
         
         this.IMG = new Image();
         this.IMG.src = src;
@@ -108,8 +107,9 @@ class DameDaneParticle {
         this.PointArr = [];
         this.ParticlePolymerizeFlag = true;
         this.animeId = -1;
-        this.mx = 0;
-        this.my = 0;
+        // FIXED: Initialize mouse position to center of screen
+        this.mx = window.innerWidth / 2;
+        this.my = window.innerHeight / 2;
         this.hasInit = false;
         this.options = options;
         
@@ -138,6 +138,13 @@ class DameDaneParticle {
             callback && callback();
         };
         
+        this.IMG.onerror = () => {
+            console.warn('Image failed to load, using fallback');
+            // If image fails to load, create fallback pattern
+            this.createFallbackPattern();
+            callback && callback();
+        };
+        
         // Throttle function implementation
         const throttle = (func, limit) => {
             let inThrottle;
@@ -152,26 +159,87 @@ class DameDaneParticle {
             }
         };
         
+        // FIXED: Mouse tracking with proper event handling
         this.$changeMxMy = throttle((e) => {
-            const cRect = canvas.getBoundingClientRect();
-            this.mx = e.clientX - cRect.left + 3;
-            this.my = e.clientY - cRect.top + 3;
-        }, 20);
+            const rect = canvas.getBoundingClientRect();
+            this.mx = e.clientX - rect.left;
+            this.my = e.clientY - rect.top;
+        }, 16); // ~60fps
         
+        // FIXED: Add mouse event listeners to the canvas itself
         canvas.addEventListener("mousemove", this.$changeMxMy);
+        canvas.addEventListener("mouseenter", this.$changeMxMy);
         
         this.$fit = throttle(() => {
-            canvas = this.canvasEle;
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            this.resizeCanvas();
             this._InitParticle();
-        }, 10);
+        }, 100);
         
         window.addEventListener('resize', this.$fit);
     }
 
+    // FIXED: Proper canvas resizing method
+    resizeCanvas() {
+        const canvas = this.canvasEle;
+        const rect = canvas.getBoundingClientRect();
+        
+        // Set canvas internal dimensions to match display size
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // Ensure canvas style matches viewport
+        canvas.style.width = '100vw';
+        canvas.style.height = '100vh';
+        
+        this.w = canvas.width;
+        this.h = canvas.height;
+    }
+
+    // FIXED: Create fallback pattern when images don't exist
+    createFallbackPattern() {
+        const tempCanvas = document.createElement('canvas');
+        const size = 400;
+        tempCanvas.width = size;
+        tempCanvas.height = size;
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        // Create a gradient pattern
+        const gradient = tempCtx.createLinearGradient(0, 0, size, size);
+        gradient.addColorStop(0, 'rgb(100, 150, 200)');
+        gradient.addColorStop(0.5, 'rgb(150, 100, 200)');
+        gradient.addColorStop(1, 'rgb(200, 150, 100)');
+        tempCtx.fillStyle = gradient;
+        tempCtx.fillRect(0, 0, size, size);
+        
+        // Add some texture for particle generation
+        for (let i = 0; i < 2000; i++) {
+            const x = Math.random() * size;
+            const y = Math.random() * size;
+            const pixelSize = Math.random() * 2 + 1;
+            const brightness = Math.random() * 100 + 100;
+            tempCtx.fillStyle = `rgba(${brightness}, ${brightness}, ${brightness}, 0.8)`;
+            tempCtx.fillRect(x, y, pixelSize, pixelSize);
+        }
+        
+        // Use the generated pattern
+        this.ImgW = size;
+        this.ImgH = size;
+        this._imgArr = tempCtx.getImageData(0, 0, size, size).data;
+        this._InitParticle(this._imgArr, true);
+        this._Draw2Canvas();
+        this.hasInit = true;
+    }
+
     _InitParticle = (ImgData, rebuildParticle = false) => {
-        if (!ImgData) ImgData = this._imgArr;
+        if (!ImgData) {
+            if (this._imgArr) {
+                ImgData = this._imgArr;
+            } else {
+                this.createFallbackPattern();
+                return;
+            }
+        }
+        
         let imgW = this.ImgW, imgH = this.ImgH, cnt = 0;
         let arr = this.PointArr;
         let { spacing, size, validColor, cancelParticleAnimation } = this.options;
@@ -179,7 +247,11 @@ class DameDaneParticle {
         spacing *= proportion > 0.5 ? proportion : 0.5;
         
         let r, g, b, val, position;
-        const gap = 4;
+        const gap = 3; // Reduced gap for more particles
+        
+        // Center the image
+        const centerX = (window.innerWidth - (imgW * spacing)) / 2;
+        const centerY = (window.innerHeight - (imgH * spacing)) / 2;
         
         for (var h = 0; h < imgH; h += gap) {
             for (var w = 0; w < imgW; w += gap) {
@@ -193,14 +265,14 @@ class DameDaneParticle {
                     (!validColor.invert && val >= validColor.min && val <= validColor.max)) {
                     if (arr[cnt] && !cancelParticleAnimation) {
                         const point = arr[cnt];
-                        point.orx = point.nx = w * spacing + this.renderX;
-                        point.ory = point.ny = h * spacing + this.renderY;
+                        point.orx = point.nx = w * spacing + centerX;
+                        point.ory = point.ny = h * spacing + centerY;
                         let c = Math.floor(val / 3);
                         point.color = `${c},${c},${c}`;
                     } else {
                         arr[cnt] = new Point(
-                            w * spacing + this.renderX, 
-                            h * spacing + this.renderY, 
+                            w * spacing + centerX, 
+                            h * spacing + centerY, 
                             size, 
                             val, 
                             this.canvasEle, 
@@ -265,6 +337,7 @@ class DameDaneParticle {
 
     PreDestory(callback) {
         this.canvasEle.removeEventListener('mousemove', this.$changeMxMy);
+        this.canvasEle.removeEventListener('mouseenter', this.$changeMxMy);
         window.removeEventListener('resize', this.$fit);
         cancelAnimationFrame(this.animeId);
         this.PointArr = [];
@@ -276,112 +349,153 @@ class DameDaneParticle {
 // Initialize particle system
 let particleSystem;
 
-// Create fallback images if cover1 and cover2 don't exist
+// FIXED: Create better fallback images
 function createFallbackImage(width, height, pattern) {
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext('2d');
     
-    // Create a gradient pattern
     if (pattern === 1) {
+        // Create flowing wave pattern
         const gradient = ctx.createLinearGradient(0, 0, width, height);
-        gradient.addColorStop(0, 'rgb(100, 150, 200)');
-        gradient.addColorStop(0.5, 'rgb(150, 100, 200)');
-        gradient.addColorStop(1, 'rgb(200, 150, 100)');
+        gradient.addColorStop(0, 'rgb(120, 180, 220)');
+        gradient.addColorStop(0.3, 'rgb(180, 120, 220)');
+        gradient.addColorStop(0.7, 'rgb(220, 180, 120)');
+        gradient.addColorStop(1, 'rgb(120, 220, 180)');
         ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+        
+        // Add wave-like texture
+        for (let y = 0; y < height; y += 3) {
+            for (let x = 0; x < width; x += 3) {
+                const intensity = Math.sin(x * 0.02) * Math.sin(y * 0.02) * 50 + 150;
+                ctx.fillStyle = `rgba(${intensity}, ${intensity}, ${intensity}, 0.6)`;
+                ctx.fillRect(x, y, 2, 2);
+            }
+        }
     } else {
-        const gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width/2);
-        gradient.addColorStop(0, 'rgb(200, 100, 150)');
-        gradient.addColorStop(0.5, 'rgb(150, 200, 100)');
-        gradient.addColorStop(1, 'rgb(100, 150, 200)');
-        ctx.fillStyle = gradient;
-    }
-    
-    ctx.fillRect(0, 0, width, height);
-    
-    // Add some noise for particle generation
-    for (let i = 0; i < 1000; i++) {
-        const x = Math.random() * width;
-        const y = Math.random() * height;
-        const size = Math.random() * 3 + 1;
-        ctx.fillStyle = `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.8)`;
-        ctx.fillRect(x, y, size, size);
+        // Create spiral pattern
+        const centerX = width / 2;
+        const centerY = height / 2;
+        
+        for (let i = 0; i < 3000; i++) {
+            const angle = i * 0.1;
+            const radius = i * 0.1;
+            const x = centerX + Math.cos(angle) * radius;
+            const y = centerY + Math.sin(angle) * radius;
+            
+            if (x >= 0 && x < width && y >= 0 && y < height) {
+                const intensity = (Math.sin(angle) + 1) * 127.5;
+                ctx.fillStyle = `rgba(${intensity}, ${intensity * 0.8}, ${intensity * 1.2}, 0.7)`;
+                ctx.fillRect(x, y, 2, 2);
+            }
+        }
     }
     
     return canvas.toDataURL();
 }
 
-// Initialize particle system when page loads
+// FIXED: Initialize particle system when page loads
 document.addEventListener('DOMContentLoaded', function() {
     const canvas = document.getElementById('particleCanvas');
+    if (!canvas) {
+        console.error('Particle canvas not found');
+        return;
+    }
     
     // Create fallback image
-    const fallbackImage = createFallbackImage(400, 300, 1);
+    const fallbackImage = createFallbackImage(600, 400, 1);
     
     particleSystem = new DameDaneParticle(canvas, {
         src: fallbackImage,
-        renderX: window.innerWidth / 2 - 200,
-        renderY: window.innerHeight / 2 - 150,
-        w: 400,
-        size: 1.5,
-        spacing: 1.5,
+        renderX: 0,
+        renderY: 0,
+        w: 600,
+        h: 400,
+        size: 2,
+        spacing: 2,
         validColor: {
             min: 100,
-            max: 600,
+            max: 700,
             invert: false
         },
         effectParticleMode: 'adsorption',
-        Thickness: 35,
+        Thickness: 40,
         Drag: 0.95,
         Ease: 0.15
     }, () => {
-        console.log('Particle system initialized');
+        console.log('Particle system initialized successfully');
     });
 });
 
-// Particle control functions
+// FIXED: Particle control functions with better fallbacks
 function switchToCover1() {
-    try {
+    if (!particleSystem) return;
+    
+    // Try to load the actual image first
+    const img = new Image();
+    img.onload = function() {
         particleSystem.ChangeImg('./images/cover1.png', { 
             w: img.width,
-            h:img.height,
+            h: img.height,
             effectParticleMode: 'adsorption',
-            Thickness: 40
+            Thickness: 40,
+            spacing: 1.5
         });
-    } catch (error) {
+    };
+    img.onerror = function() {
         // Fallback to generated pattern
-        const fallbackImage = createFallbackImage(500, 375, 1);
+        const fallbackImage = createFallbackImage(700, 500, 1);
         particleSystem.ChangeImg(fallbackImage, { 
-            w: 500,
+            w: 700,
+            h: 500,
             effectParticleMode: 'adsorption',
-            Thickness: 40
+            Thickness: 40,
+            spacing: 1.5
         });
-    }
+    };
+    img.src = './images/cover1.png';
 }
 
 function switchTo2() {
-    try {
+    if (!particleSystem) return;
+    
+    // Try to load the actual image first
+    const img = new Image();
+    img.onload = function() {
         particleSystem.ChangeImg('./images/cover2.png', { 
             w: img.width,
-            h:img.height,
+            h: img.height,
             effectParticleMode: 'repulsion',
-            Thickness: 30
+            Thickness: 30,
+            spacing: 1.2
         });
-    } catch (error) {
+    };
+    img.onerror = function() {
         // Fallback to generated pattern
-        const fallbackImage = createFallbackImage(400, 300, 2);
+        const fallbackImage = createFallbackImage(500, 400, 2);
         particleSystem.ChangeImg(fallbackImage, { 
-            w: 400,
+            w: 500,
+            h: 400,
             effectParticleMode: 'repulsion',
-            Thickness: 30
+            Thickness: 30,
+            spacing: 1.2
         });
-    }
+    };
+    img.src = './images/cover2.png';
 }
-
 
 function toggleParticles() {
     if (particleSystem) {
         particleSystem.ParticlePolymerize();
+    }
+}
+
+// Add placeholder handleAuth function if it doesn't exist
+if (typeof handleAuth === 'undefined') {
+    function handleAuth() {
+        console.log('Auth function called');
+        // Add your authentication logic here
     }
 }
