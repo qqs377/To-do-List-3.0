@@ -82,6 +82,34 @@ body {
     line-height: 1.3;
 }
 
+/* Particle Canvas Styles */
+#particleCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+    pointer-events: none; /* Allow clicks to pass through to elements below */
+}
+
+/* Particle canvas animations */
+@keyframes particleFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+#particleCanvas {
+    animation: particleFadeIn 1s ease-in-out;
+}
+
+/* Ensure particle canvas doesn't interfere with scrolling */
+body {
+    position: relative;
+}
+
+
 /* Main App Styles */
 .app-container {
     display: none;
