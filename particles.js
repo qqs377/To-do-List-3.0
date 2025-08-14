@@ -575,8 +575,8 @@ const imageConfigs = [
         src: './images/cover5.png',
         fallbackPattern: 1,
         options: {
-            w: 700,
-            h: 700,
+            w: 500,
+            h: 500,
             effectParticleMode: 'adsorption',
             Thickness: 45,
             spacing: 1.6
