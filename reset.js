@@ -10,7 +10,6 @@ async function resetDailyCounts() {
     }
 
     setButtonsDisabled(true);
-    showStatus('Resetting daily counts...', 'loading');
 
     try {
         const { data, error } = await supabase
@@ -25,10 +24,8 @@ async function resetDailyCounts() {
             throw error;
         }
 
-        showStatus(`Successfully reset daily counts for ${data?.length || 'all'} users!`, 'success');
     } catch (error) {
         console.error('Error resetting daily counts:', error);
-        showStatus(`Error: ${error.message}`, 'error');
     } finally {
         setButtonsDisabled(false);
     }
@@ -41,7 +38,6 @@ async function resetWeeklyCounts() {
     }
 
     setButtonsDisabled(true);
-    showStatus('Resetting weekly counts...', 'loading');
 
     try {
         const { data, error } = await supabase
@@ -56,10 +52,8 @@ async function resetWeeklyCounts() {
             throw error;
         }
 
-        showStatus(`Successfully reset weekly counts for ${data?.length || 'all'} users!`, 'success');
     } catch (error) {
         console.error('Error resetting weekly counts:', error);
-        showStatus(`Error: ${error.message}`, 'error');
     } finally {
         setButtonsDisabled(false);
     }
