@@ -542,8 +542,8 @@ const imageConfigs = [
         src: './images/cover2.png',
         fallbackPattern: 2,
         options: {
-            w: 700,
-            h: 500,
+            w: 900,
+            h: 700,
             effectParticleMode: 'repulsion',
             Thickness: 40,
             spacing: 1.5
@@ -554,7 +554,7 @@ const imageConfigs = [
         fallbackPattern: 1,
         options: {
             w: 700,
-            h: 500,
+            h: 700,
             effectParticleMode: 'adsorption',
             Thickness: 40,
             spacing: 1.5
@@ -575,8 +575,8 @@ const imageConfigs = [
         src: './images/cover5.png',
         fallbackPattern: 1,
         options: {
-            w: 700,
-            h: 500,
+            w: 900,
+            h: 900,
             effectParticleMode: 'adsorption',
             Thickness: 45,
             spacing: 1.6
