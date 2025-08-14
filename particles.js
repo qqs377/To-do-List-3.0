@@ -542,41 +542,41 @@ const imageConfigs = [
         src: './images/cover2.png',
         fallbackPattern: 2,
         options: {
-            w: 500,
-            h: 400,
+            w: 700,
+            h: 500,
             effectParticleMode: 'repulsion',
-            Thickness: 30,
-            spacing: 1.2
+            Thickness: 40,
+            spacing: 1.5
         }
     },
     {
         src: './images/cover3.png',
         fallbackPattern: 1,
         options: {
-            w: 600,
-            h: 450,
+            w: 700,
+            h: 500,
             effectParticleMode: 'adsorption',
-            Thickness: 35,
-            spacing: 1.3
+            Thickness: 40,
+            spacing: 1.5
         }
     },
     {
         src: './images/cover4.png',
         fallbackPattern: 2,
         options: {
-            w: 650,
-            h: 480,
+            w: 700,
+            h: 500,
             effectParticleMode: 'repulsion',
-            Thickness: 25,
-            spacing: 1.4
+            Thickness: 40,
+            spacing: 1.5
         }
     },
     {
         src: './images/cover5.png',
         fallbackPattern: 1,
         options: {
-            w: 550,
-            h: 420,
+            w: 700,
+            h: 500,
             effectParticleMode: 'adsorption',
             Thickness: 45,
             spacing: 1.6
