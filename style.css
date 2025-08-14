@@ -218,6 +218,36 @@ html, body {
     color: black;
 }
 
+.reset-daily {
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.reset-daily:hover {
+    background: white;
+    color: black;
+}
+
+.reset-weekly {
+        padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.reset-weekly:hover {
+    background: white;
+    color: black;
+}
+
 .input-container {
     display: flex;
     align-items: center;
