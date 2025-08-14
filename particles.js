@@ -368,8 +368,6 @@ class DameDaneParticle {
         cancelAnimationFrame(this.animeId);
         this.PointArr = [];
         this.ctx.clearRect(0, 0, this.canvasEle.width, this.canvasEle.height);
-        // Stop image rotation when destroying
-        stopImageRotation();
         callback && callback();
     }
 }
@@ -451,9 +449,6 @@ function createFallbackImage(width, height, pattern) {
 
 // FIXED: Initialize particle system when page loads (only if not logged in)
 document.addEventListener('DOMContentLoaded', function() {
-    // Clear any existing timers from previous page loads
-    clearAllTimers();
-    
     // Don't start particles if user is already logged in
     if (isLoggedIn) return;
     
@@ -463,48 +458,74 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    // Create fallback image
-    const fallbackImage = createFallbackImage(600, 400, 1);
+    // FIXED: Randomly select one image from the available images
+    const randomImageIndex = Math.floor(Math.random() * imageConfigs.length);
+    const selectedConfig = imageConfigs[randomImageIndex];
     
-    particleSystem = new DameDaneParticle(canvas, {
-        src: fallbackImage,
-        renderX: 0,
-        renderY: 0,
-        w: 600,
-        h: 400,
-        size: 2,
-        spacing: 2,
-        validColor: {
-            min: 100,
-            max: 700,
-            invert: false
-        },
-        effectParticleMode: 'adsorption',
-        Thickness: 40,
-        Drag: 0.95,
-        Ease: 0.15
-    }, () => {
-        console.log('Particle system initialized successfully');
-        // Only start automatic image rotation if not logged in
-        if (!isLoggedIn) {
-            startImageRotation();
-        }
-    });
+    console.log(`Randomly selected image ${randomImageIndex + 1}: ${selectedConfig.src}`);
+    
+    // Try to load the selected image, fall back to generated pattern if it fails
+    const img = new Image();
+    img.onload = function() {
+        // Image loaded successfully, use it
+        particleSystem = new DameDaneParticle(canvas, {
+            src: selectedConfig.src,
+            renderX: 0,
+            renderY: 0,
+            w: selectedConfig.options.w,
+            h: selectedConfig.options.h,
+            size: 2,
+            spacing: selectedConfig.options.spacing,
+            validColor: {
+                min: 100,
+                max: 700,
+                invert: false
+            },
+            effectParticleMode: selectedConfig.options.effectParticleMode,
+            Thickness: selectedConfig.options.Thickness,
+            Drag: 0.95,
+            Ease: 0.15
+        }, () => {
+            console.log(`Particle system initialized successfully with image: ${selectedConfig.src}`);
+        });
+    };
+    
+    img.onerror = function() {
+        console.warn(`Failed to load image: ${selectedConfig.src}, using fallback pattern`);
+        // Image failed to load, use fallback pattern
+        const fallbackImage = createFallbackImage(
+            selectedConfig.options.w, 
+            selectedConfig.options.h, 
+            selectedConfig.fallbackPattern
+        );
+        
+        particleSystem = new DameDaneParticle(canvas, {
+            src: fallbackImage,
+            renderX: 0,
+            renderY: 0,
+            w: selectedConfig.options.w,
+            h: selectedConfig.options.h,
+            size: 2,
+            spacing: selectedConfig.options.spacing,
+            validColor: {
+                min: 100,
+                max: 700,
+                invert: false
+            },
+            effectParticleMode: selectedConfig.options.effectParticleMode,
+            Thickness: selectedConfig.options.Thickness,
+            Drag: 0.95,
+            Ease: 0.15
+        }, () => {
+            console.log('Particle system initialized successfully with fallback pattern');
+        });
+    };
+    
+    // Start loading the selected image
+    img.src = selectedConfig.src;
 });
 
-// Automatic image rotation system
-let currentImageIndex = 0;
-let imageRotationTimer = null;
-
-// Ensure only one timer runs at a time
-function clearAllTimers() {
-    if (imageRotationTimer) {
-        clearInterval(imageRotationTimer);
-        imageRotationTimer = null;
-        console.log('Cleared existing image rotation timer');
-    }
-}
-
+// Image configuration array
 const imageConfigs = [
     {
         src: './images/cover1.png',
@@ -562,102 +583,6 @@ const imageConfigs = [
         }
     }
 ];
-
-function loadImageWithFallback(config) {
-    // Check if particle system exists and is properly initialized
-    if (!particleSystem || !particleSystem.hasInit) {
-        console.warn('Particle system not ready for image change');
-        return;
-    }
-    
-    const img = new Image();
-    img.onload = function() {
-        // Double-check particle system still exists before calling ChangeImg
-        if (particleSystem && typeof particleSystem.ChangeImg === 'function') {
-            particleSystem.ChangeImg(config.src, {
-                ...config.options,
-                w: img.width,
-                h: img.height
-            });
-        }
-    };
-    img.onerror = function() {
-        // Double-check particle system still exists before calling ChangeImg
-        if (particleSystem && typeof particleSystem.ChangeImg === 'function') {
-            const fallbackImage = createFallbackImage(
-                config.options.w, 
-                config.options.h, 
-                config.fallbackPattern
-            );
-            particleSystem.ChangeImg(fallbackImage, config.options);
-        }
-    };
-    img.src = config.src;
-}
-
-function rotateToNextImage() {
-    // Check if particle system exists and user is not logged in
-    if (!particleSystem || isLoggedIn || !particleSystem.hasInit) {
-        return;
-    }
-    
-    loadImageWithFallback(imageConfigs[currentImageIndex]);
-    currentImageIndex = (currentImageIndex + 1) % imageConfigs.length;
-}
-
-function startImageRotation() {
-    // Don't start if logged in or particle system doesn't exist
-    if (isLoggedIn || !particleSystem) {
-        return;
-    }
-    
-    // IMPORTANT: Clear any existing timer first
-    clearAllTimers();
-    
-    // Wait a bit for particle system to fully initialize before starting rotation
-    setTimeout(() => {
-        if (!isLoggedIn && particleSystem && particleSystem.hasInit) {
-            // Load first image immediately
-            rotateToNextImage();
-            
-            // Set up automatic rotation every 5 minutes (300000ms)
-            imageRotationTimer = setInterval(rotateToNextImage, 300000);
-            console.log('Started image rotation with 5-minute interval (timer ID:', imageRotationTimer, ')');
-        }
-    }, 500); // Wait 500ms for initialization
-}
-
-function stopImageRotation() {
-    clearAllTimers();
-    console.log('Image rotation stopped');
-}
-
-// Function to stop particle system after login
-function stopParticleSystem() {
-    // Stop image rotation first
-    stopImageRotation();
-    
-    if (particleSystem) {
-        particleSystem.PreDestory(() => {
-            console.log('Particle system stopped after login');
-        });
-        particleSystem = null;
-    }
-    
-    // Hide the auth modal and canvas
-    const authModal = document.getElementById('authModal');
-    const particleCanvas = document.getElementById('particleCanvas');
-    
-    if (authModal) {
-        authModal.style.display = 'none';
-    }
-    
-    if (particleCanvas) {
-        particleCanvas.style.display = 'none';
-    }
-    
-    isLoggedIn = true;
-}
 
 // Add placeholder handleAuth function if it doesn't exist
 if (typeof handleAuth === 'undefined') {
