@@ -17,6 +17,9 @@ let currentUserFilter = '';
 
 // Music files list - you can expand this or make it dynamic
 const musicFiles = [
+    "music/Sunlight_Upon_the_Ruins_bySujun.mp3",
+    "music/We_Fight_to Live_We Fight_to_Die_bySujun.mp3",
+    "music/I_combine_every_sad_amphoreus_song_so_far_for_maximum_emotional_damage_bySujun.mp3",
     "music/404_患者_byLinkFu.mp3",
     "music/Computers_have_taken_over_the_world_byLinkFu.mp3",
     "music/Corporate_Slave_byLinkFu.mp3",
