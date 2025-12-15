@@ -1159,3 +1159,120 @@ canvas {
     90% { opacity: 1; }
     100% { opacity: 0; transform: translateY(-10px); }
 }
+
+
+
+/* LeetCode Section */
+.leetcode-section {
+    margin: 20px 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
+
+.leetcode-section h2 {
+    color: #ffffff;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.leetcode-input-container {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.difficulty-inputs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.input-group {
+    flex: 1;
+    min-width: 150px;
+    max-width: 200px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    color: black;
+    text-align: center;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: white;
+    background: white;
+}
+
+.submit-leetcode-btn {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.submit-leetcode-btn:hover {
+    background: white;
+    color: black;
+}
+
+.leetcode-leaderboard {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.leetcode-leaderboard .leaderboard-content {
+    margin-top: 15px;
+}
+
+/* Responsive design for LeetCode section */
+@media (max-width: 768px) {
+    .difficulty-inputs {
+        flex-direction: column;
+    }
+    
+    .input-group {
+        min-width: 100%;
+        max-width: 100%;
+    }
+    
+    .input-group label {
+        font-size: 14px;
+    }
+    
+    .input-group input {
+        font-size: 14px;
+        padding: 8px;
+    }
+    
+    .submit-leetcode-btn {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
