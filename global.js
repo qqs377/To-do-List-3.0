@@ -280,6 +280,7 @@ function showMainApp() {
     loadUserFilter();
     initializeMusicPlayer();
     updateTimerDisplay();
+    loadLeetCodeLeaderboard();
 }
 
 function logout() {
