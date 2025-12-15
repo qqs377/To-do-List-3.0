@@ -99,7 +99,41 @@
         </div>
         
         <ul id="tasks"></ul>
+
+       <hr>
+
+       <!-- LeetCode Leaderboard -->
+        <div class="leetcode-section">
+            <h2>LeetCode Champions</h2>
+            
+            <div class="leetcode-input-container">
+                <div class="difficulty-inputs">
+                    <div class="input-group">
+                        <label for="easyInput">Easy (×1)</label>
+                        <input type="number" id="easyInput" min="0" placeholder="0" />
+                    </div>
+                    <div class="input-group">
+                        <label for="mediumInput">Medium (×2)</label>
+                        <input type="number" id="mediumInput" min="0" placeholder="0" />
+                    </div>
+                    <div class="input-group">
+                        <label for="hardInput">Hard (×3)</label>
+                        <input type="number" id="hardInput" min="0" placeholder="0" />
+                    </div>
+                </div>
+                <button onclick="submitLeetCode()" class="submit-leetcode-btn">Submit Progress</button>
+            </div>
         
+            <div class="leetcode-leaderboard">
+                <div class="leaderboard-controls">
+                    <button class="period-btn active" data-period="daily" data-type="leetcode">Daily</button>
+                    <button class="period-btn" data-period="weekly" data-type="leetcode">Weekly</button>
+                    <button class="period-btn" data-period="cumulative" data-type="leetcode">All Time</button>
+                </div>
+                <div id="leetcodeLeaderboard" class="leaderboard-content"></div>
+            </div>
+        </div>
+
         <hr>
         
         <!-- Message Board -->
