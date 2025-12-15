@@ -111,15 +111,15 @@ async function loadLeetCodeLeaderboard() {
             }
         });
 
-        // Display top 5 users
-        activeUsers.slice(0, 5).forEach((user, index) => {
+        // Display top 3 users
+        activeUsers.slice(0, 3).forEach((user, index) => {
             const item = document.createElement('div');
             item.className = 'leaderboard-item';
             
             // Highlight current user
-            if (currentUser && user.username === currentUser.username) {
-                item.style.background = 'rgba(255, 255, 255, 0.2)';
-                item.style.fontWeight = 'bold';
+            //if (currentUser && user.username === currentUser.username) {
+            //    item.style.background = 'rgba(255, 255, 255, 0.2)';
+            //    item.style.fontWeight = 'bold';
             }
             
             let score = 0;
