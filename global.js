@@ -12,7 +12,7 @@ let isBreakTime = false;
 let audioContext;
 let analyser;
 let currentSongIndex = 0;
-let currentTaskFilter = 'all';
+let currentTaskFilter = 'my';
 let currentUserFilter = '';
 
 // Music files list - you can expand this or make it dynamic
