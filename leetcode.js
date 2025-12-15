@@ -7,8 +7,14 @@ const DIFFICULTY_WEIGHTS = {
     hard: 3
 };
 
-// Submit LeetCode progress
+// Submit LeetCode progress - uses currentUser from global.js
 async function submitLeetCode() {
+    // Check if user is logged in
+    if (!currentUser || !currentUser.id) {
+        alert('Please log in first!');
+        return;
+    }
+
     const easyCount = parseInt(document.getElementById('easyInput').value) || 0;
     const mediumCount = parseInt(document.getElementById('mediumInput').value) || 0;
     const hardCount = parseInt(document.getElementById('hardInput').value) || 0;
@@ -24,49 +30,30 @@ async function submitLeetCode() {
                   (hardCount * DIFFICULTY_WEIGHTS.hard);
 
     try {
-        // Check if user already has a record
-        const { data: existing, error: fetchError } = await supabase
-            .from('LeetCodeRank')
-            .select('*')
-            .eq('username', currentUsername)
+        // Update user's LeetCode stats in users_v3
+        const { data, error } = await supabase
+            .from('users_v3')
+            .update({
+                leetcode_easy: (currentUser.leetcode_easy || 0) + easyCount,
+                leetcode_medium: (currentUser.leetcode_medium || 0) + mediumCount,
+                leetcode_hard: (currentUser.leetcode_hard || 0) + hardCount,
+                leetcode_total_score: (currentUser.leetcode_total_score || 0) + score,
+                leetcode_day_score: (currentUser.leetcode_day_score || 0) + score,
+                leetcode_week_score: (currentUser.leetcode_week_score || 0) + score
+            })
+            .eq('id', currentUser.id)
+            .select()
             .single();
 
-        if (fetchError && fetchError.code !== 'PGRST116') {
-            throw fetchError;
-        }
+        if (error) throw error;
 
-        if (existing) {
-            // Update existing record - add to existing counts
-            const { error: updateError } = await supabase
-                .from('LeetCodeRank')
-                .update({
-                    easy_count: existing.easy_count + easyCount,
-                    medium_count: existing.medium_count + mediumCount,
-                    hard_count: existing.hard_count + hardCount,
-                    total_score: existing.total_score + score,
-                    day_score: existing.day_score + score,
-                    week_score: existing.week_score + score,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('username', currentUsername);
-
-            if (updateError) throw updateError;
-        } else {
-            // Insert new record
-            const { error: insertError } = await supabase
-                .from('LeetCodeRank')
-                .insert([{
-                    username: currentUsername,
-                    easy_count: easyCount,
-                    medium_count: mediumCount,
-                    hard_count: hardCount,
-                    total_score: score,
-                    day_score: score,
-                    week_score: score
-                }]);
-
-            if (insertError) throw insertError;
-        }
+        // Update local currentUser object
+        currentUser.leetcode_easy = data.leetcode_easy;
+        currentUser.leetcode_medium = data.leetcode_medium;
+        currentUser.leetcode_hard = data.leetcode_hard;
+        currentUser.leetcode_total_score = data.leetcode_total_score;
+        currentUser.leetcode_day_score = data.leetcode_day_score;
+        currentUser.leetcode_week_score = data.leetcode_week_score;
 
         // Clear inputs
         document.getElementById('easyInput').value = '';
@@ -76,7 +63,7 @@ async function submitLeetCode() {
         // Reload leaderboard
         await loadLeetCodeLeaderboard();
         
-        alert(`Successfully logged: ${easyCount} Easy, ${mediumCount} Medium, ${hardCount} Hard (Score: ${score})`);
+        alert(`Successfully logged!\n\nEasy: ${easyCount}\nMedium: ${mediumCount}\nHard: ${hardCount}\n\nTotal Score: +${score} points`);
     } catch (error) {
         console.error('Error submitting LeetCode progress:', error);
         alert('Failed to submit progress. Please try again.');
@@ -87,9 +74,9 @@ async function submitLeetCode() {
 async function loadLeetCodeLeaderboard() {
     try {
         const { data: users, error } = await supabase
-            .from('LeetCodeRank')
-            .select('*')
-            .order('total_score', { ascending: false });
+            .from('users_v3')
+            .select('username, leetcode_easy, leetcode_medium, leetcode_hard, leetcode_total_score, leetcode_day_score, leetcode_week_score')
+            .order('leetcode_total_score', { ascending: false });
 
         if (error) throw error;
 
@@ -103,78 +90,123 @@ async function loadLeetCodeLeaderboard() {
         let sortedUsers = [...users];
         switch (activePeriod) {
             case 'daily':
-                sortedUsers.sort((a, b) => (b.day_score || 0) - (a.day_score || 0));
+                sortedUsers.sort((a, b) => (b.leetcode_day_score || 0) - (a.leetcode_day_score || 0));
                 break;
             case 'weekly':
-                sortedUsers.sort((a, b) => (b.week_score || 0) - (a.week_score || 0));
+                sortedUsers.sort((a, b) => (b.leetcode_week_score || 0) - (a.leetcode_week_score || 0));
                 break;
             default: // cumulative
-                sortedUsers.sort((a, b) => (b.total_score || 0) - (a.total_score || 0));
+                sortedUsers.sort((a, b) => (b.leetcode_total_score || 0) - (a.leetcode_total_score || 0));
         }
 
+        // Filter users who have done at least one problem
+        const activeUsers = sortedUsers.filter(user => {
+            switch (activePeriod) {
+                case 'daily':
+                    return (user.leetcode_day_score || 0) > 0;
+                case 'weekly':
+                    return (user.leetcode_week_score || 0) > 0;
+                default:
+                    return (user.leetcode_total_score || 0) > 0;
+            }
+        });
+
         // Display top 5 users
-        sortedUsers.slice(0, 5).forEach((user, index) => {
+        activeUsers.slice(0, 5).forEach((user, index) => {
             const item = document.createElement('div');
             item.className = 'leaderboard-item';
             
+            // Highlight current user
+            if (currentUser && user.username === currentUser.username) {
+                item.style.background = 'rgba(255, 255, 255, 0.2)';
+                item.style.fontWeight = 'bold';
+            }
+            
             let score = 0;
             let breakdown = '';
+            
             switch (activePeriod) {
                 case 'daily':
-                    score = user.day_score || 0;
+                    score = user.leetcode_day_score || 0;
                     break;
                 case 'weekly':
-                    score = user.week_score || 0;
+                    score = user.leetcode_week_score || 0;
                     break;
                 default: // cumulative
-                    score = user.total_score || 0;
-                    breakdown = ` (E: ${user.easy_count}, M: ${user.medium_count}, H: ${user.hard_count})`;
+                    score = user.leetcode_total_score || 0;
+                    breakdown = ` <span style="font-size: 11px; opacity: 0.8;">(E:${user.leetcode_easy || 0} M:${user.leetcode_medium || 0} H:${user.leetcode_hard || 0})</span>`;
             }
 
             item.innerHTML = `
                 <span>${index + 1}. ${user.username}${breakdown}</span>
-                <span>${score} 🏆</span>
+                <span>${score} ❆</span>
             `;
             leaderboard.appendChild(item);
         });
 
-        if (sortedUsers.length === 0) {
+        if (activeUsers.length === 0) {
             leaderboard.innerHTML = '<div class="leaderboard-item">No data yet. Be the first!</div>';
         }
     } catch (error) {
         console.error('Error loading LeetCode leaderboard:', error);
+        const leaderboard = document.getElementById('leetcodeLeaderboard');
+        leaderboard.innerHTML = '<div class="leaderboard-item">Error loading leaderboard</div>';
     }
 }
 
 // Reset daily scores (call this function daily via a cron job or manually)
 async function resetDailyLeetCodeScores() {
+    if (!confirm('Are you sure you want to reset all daily LeetCode scores?')) {
+        return;
+    }
+    
     try {
         const { error } = await supabase
-            .from('LeetCodeRank')
-            .update({ day_score: 0 })
+            .from('users_v3')
+            .update({ leetcode_day_score: 0 })
             .neq('id', 0); // Update all records
 
         if (error) throw error;
+        
+        // Update local user if logged in
+        if (currentUser) {
+            currentUser.leetcode_day_score = 0;
+        }
+        
         console.log('Daily LeetCode scores reset successfully');
+        alert('Daily LeetCode scores have been reset!');
         await loadLeetCodeLeaderboard();
     } catch (error) {
         console.error('Error resetting daily scores:', error);
+        alert('Failed to reset daily scores. Please try again.');
     }
 }
 
 // Reset weekly scores (call this function weekly via a cron job or manually)
 async function resetWeeklyLeetCodeScores() {
+    if (!confirm('Are you sure you want to reset all weekly LeetCode scores?')) {
+        return;
+    }
+    
     try {
         const { error } = await supabase
-            .from('LeetCodeRank')
-            .update({ week_score: 0 })
+            .from('users_v3')
+            .update({ leetcode_week_score: 0 })
             .neq('id', 0); // Update all records
 
         if (error) throw error;
+        
+        // Update local user if logged in
+        if (currentUser) {
+            currentUser.leetcode_week_score = 0;
+        }
+        
         console.log('Weekly LeetCode scores reset successfully');
+        alert('Weekly LeetCode scores have been reset!');
         await loadLeetCodeLeaderboard();
     } catch (error) {
         console.error('Error resetting weekly scores:', error);
+        alert('Failed to reset weekly scores. Please try again.');
     }
 }
 
