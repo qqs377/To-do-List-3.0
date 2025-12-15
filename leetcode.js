@@ -120,7 +120,7 @@ async function loadLeetCodeLeaderboard() {
             //if (currentUser && user.username === currentUser.username) {
             //    item.style.background = 'rgba(255, 255, 255, 0.2)';
             //    item.style.fontWeight = 'bold';
-            }
+            //}
             
             let score = 0;
             let breakdown = '';
