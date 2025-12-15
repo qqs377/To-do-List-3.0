@@ -65,6 +65,18 @@
                 </div>
                 <div id="taskLeaderboard"></div>
             </div>
+
+
+            <div class="leaderboard">
+                <h3>LeetCode Champions</h3>
+                <div class="leaderboard-controls">
+                    <button class="period-btn active" data-period="daily" data-type="leetcode">Daily</button>
+                    <button class="period-btn" data-period="weekly" data-type="leetcode">Weekly</button>
+                    <button class="period-btn" data-period="cumulative" data-type="leetcode">All Time</button>
+                </div>
+                <div id="leetcodeLeaderboard" class="leaderboard-content"></div>
+            </div>
+            
         </div>
 
         <hr>
@@ -104,7 +116,7 @@
 
        <!-- LeetCode Leaderboard -->
         <div class="leetcode-section">
-            <h2>LeetCode Champions</h2>
+            <h2>LeetCode Tracker</h2>
             
             <div class="leetcode-input-container">
                 <div class="difficulty-inputs">
@@ -123,15 +135,7 @@
                 </div>
                 <button onclick="submitLeetCode()" class="submit-leetcode-btn">Submit Progress</button>
             </div>
-        
-            <div class="leetcode-leaderboard">
-                <div class="leaderboard-controls">
-                    <button class="period-btn active" data-period="daily" data-type="leetcode">Daily</button>
-                    <button class="period-btn" data-period="weekly" data-type="leetcode">Weekly</button>
-                    <button class="period-btn" data-period="cumulative" data-type="leetcode">All Time</button>
-                </div>
-                <div id="leetcodeLeaderboard" class="leaderboard-content"></div>
-            </div>
+            
         </div>
 
         <hr>
