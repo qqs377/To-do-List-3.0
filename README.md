@@ -7,7 +7,7 @@
 5. Now support double click to edit task
 6. Now support task filter
 7. Now double click can edit tag name
-8. Now support Yejun's music
+8. Tetris game added
 9. Now users can choose music to play
 10. Now support Pomodoro count down display in the tab title
 11. Now support message likes
@@ -15,4 +15,3 @@
 13. Now support game room
 14. Now support pet
 15. Now support Sujun's music
-16. Tetris game added
