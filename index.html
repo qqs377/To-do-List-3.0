@@ -130,11 +130,11 @@
             <!-- Flashcard Leaderboards -->
             <div class="flashcard-leaderboards">
                 <div class="flashcard-leaderboard">
-                    <h3>Cards Studied</h3>
+                    <h3>Flashcard Champions</h3>
                     <div class="flashcard-leaderboard-controls">
-                        <button class="flashcard-period-btn active" onclick="updateFlashcardLeaderboard('daily')">Daily</button>
-                        <button class="flashcard-period-btn" onclick="updateFlashcardLeaderboard('weekly')">Weekly</button>
-                        <button class="flashcard-period-btn" onclick="updateFlashcardLeaderboard('cumulative')">All Time</button>
+                        <button class="flashcard-period-btn active" data-period="daily">Daily</button>
+                        <button class="flashcard-period-btn" data-period="weekly">Weekly</button>
+                        <button class="flashcard-period-btn" data-period="cumulative">All Time</button>
                     </div>
                     <div id="flashcardLeaderboard-daily"></div>
                     <div id="flashcardLeaderboard-weekly" style="display: none;"></div>
