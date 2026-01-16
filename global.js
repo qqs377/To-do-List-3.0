@@ -31,16 +31,9 @@ const musicFiles = [
 
 // Affirmations list
 const affirmations = [
-    "Leah becomes a well-known artist!",
-    "Jordan is living her awesome life",
-    "Jennifer earned her 1M dollars",
-    "Link is a millionaire now",
-    "Hans just got his greencard",
-    "Ammon has received a promotion!",
-    "Holly adopt a capybara",
-    "Julian becomes a professional violinist",
-    "Tingyo is piloting an Airbus A330",
-    "Qianqian loves you all"
+    "Good job!",
+    "You're doing great!",
+    "You rock!"
 ];
 
 // Initialize app when DOM is ready
