@@ -526,3 +526,37 @@ if (typeof showMainApp !== 'undefined') {
         initializeFlashcards();
     };
 }
+
+// leaderboard
+document.addEventListener('DOMContentLoaded', () => {
+    // Handle flashcard leaderboard period switching
+    document.querySelectorAll('.flashcard-period-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const period = this.textContent.toLowerCase().replace(' ', '');
+            const leaderboardType = this.closest('.flashcard-leaderboard');
+            
+            // Update button states
+            leaderboardType.querySelectorAll('.flashcard-period-btn').forEach(b => {
+                b.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            // Show/hide corresponding leaderboard
+            const dailyLb = leaderboardType.querySelector('#flashcardLeaderboard-daily');
+            const weeklyLb = leaderboardType.querySelector('#flashcardLeaderboard-weekly');
+            const cumulativeLb = leaderboardType.querySelector('#flashcardLeaderboard-cumulative');
+            
+            dailyLb.style.display = 'none';
+            weeklyLb.style.display = 'none';
+            cumulativeLb.style.display = 'none';
+            
+            if (period === 'daily') {
+                dailyLb.style.display = 'block';
+            } else if (period === 'weekly') {
+                weeklyLb.style.display = 'block';
+            } else {
+                cumulativeLb.style.display = 'block';
+            }
+        });
+    });
+});
