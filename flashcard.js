@@ -1,6 +1,7 @@
 // Flashcard System with SM-2 Algorithm
 let currentFlashcardFilter = 'all'; // 'all', 'due', 'new'
-let flashcardDeck = [];
+let flashcardDeck = []; // Full deck of all cards
+let studyDeck = []; // Filtered deck for current study session
 let currentCardIndex = 0;
 let isFlipped = false;
 let studyMode = false;
@@ -79,11 +80,11 @@ function setupFlashcardEventListeners() {
 // Ensure user has stats entry
 async function ensureUserFlashcardStats() {
     try {
-        const { data: existing } = await supabaseClient
+        const { data: existing, error } = await supabaseClient
             .from('flashcard_stats')
             .select('*')
             .eq('username', currentUser.username)
-            .single();
+            .maybeSingle();
             
         if (!existing) {
             await supabaseClient
@@ -299,7 +300,7 @@ async function startStudySession(filter = 'due') {
         });
     }
     
-    // Filter cards
+    // Filter cards from the FULL deck
     let studyCards = flashcardDeck.filter(card => {
         const progress = progressMap[card.id];
         
@@ -317,9 +318,8 @@ async function startStudySession(filter = 'due') {
         return;
     }
     
-    // Shuffle cards
-    studyCards = studyCards.sort(() => Math.random() - 0.5);
-    flashcardDeck = studyCards;
+    // Shuffle cards and store in studyDeck (don't overwrite flashcardDeck!)
+    studyDeck = studyCards.sort(() => Math.random() - 0.5);
     currentCardIndex = 0;
     
     document.getElementById('flashcardLibrarySection').style.display = 'none';
@@ -330,18 +330,18 @@ async function startStudySession(filter = 'due') {
 
 // Show current card
 async function showCurrentCard() {
-    if (currentCardIndex >= flashcardDeck.length) {
+    if (currentCardIndex >= studyDeck.length) {
         endStudySession();
         return;
     }
     
-    const card = flashcardDeck[currentCardIndex];
+    const card = studyDeck[currentCardIndex];
     isFlipped = false;
     
     document.getElementById('studyCardFront').textContent = card.front;
     document.getElementById('studyCardBack').textContent = card.back;
     document.getElementById('studyCard').classList.remove('flipped');
-    document.getElementById('studyProgress').textContent = `Card ${currentCardIndex + 1} of ${flashcardDeck.length}`;
+    document.getElementById('studyProgress').textContent = `Card ${currentCardIndex + 1} of ${studyDeck.length}`;
     document.getElementById('ratingButtons').style.display = 'none';
 }
 
@@ -368,16 +368,16 @@ async function rateCard(rating) {
         return;
     }
     
-    const card = flashcardDeck[currentCardIndex];
+    const card = studyDeck[currentCardIndex];
     
     try {
         // Get or create progress
-        let { data: progress } = await supabaseClient
+        let { data: progress, error: progressError } = await supabaseClient
             .from('user_flashcard_progress')
             .select('*')
             .eq('user_id', currentUser.id)
             .eq('flashcard_id', card.id)
-            .single();
+            .maybeSingle();
         
         const isNewCard = !progress || progress.repetitions === 0;
         
@@ -460,13 +460,29 @@ async function updateFlashcardStatsAfterReview(isNewCard) {
     try {
         const today = new Date().toISOString().split('T')[0];
         
-        const { data: stats } = await supabaseClient
+        const { data: stats, error } = await supabaseClient
             .from('flashcard_stats')
             .select('*')
             .eq('username', currentUser.username)
-            .single();
+            .maybeSingle();
         
-        if (!stats) return;
+        if (!stats) {
+            // Create stats if doesn't exist
+            await supabaseClient
+                .from('flashcard_stats')
+                .insert([{
+                    username: currentUser.username,
+                    cards_studied_today: isNewCard ? 1 : 0,
+                    cards_studied_week: isNewCard ? 1 : 0,
+                    cards_studied_total: isNewCard ? 1 : 0,
+                    cards_reviewed_today: 1,
+                    cards_reviewed_week: 1,
+                    cards_reviewed_total: 1,
+                    last_study_date: today
+                }]);
+            await loadFlashcardLeaderboard();
+            return;
+        }
         
         const updates = {
             cards_reviewed_total: stats.cards_reviewed_total + 1,
