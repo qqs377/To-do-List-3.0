@@ -8,9 +8,12 @@ let studyMode = false;
 
 // Initialize flashcard system - called after user logs in
 async function initializeFlashcards() {
+    console.log('Initializing flashcards...');
     await loadFlashcards();
     await loadFlashcardStats();
     await ensureUserFlashcardStats();
+    // Setup event listeners here since we know user is logged in
+    setupFlashcardEventListeners();
 }
 
 // Setup event listeners - called on DOMContentLoaded
@@ -22,10 +25,17 @@ function setupFlashcardEventListeners() {
         createBtn.addEventListener('click', createFlashcard);
     }
     
-    // Study buttons
+    // Study buttons - remove old listeners first
     document.querySelectorAll('.study-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const filter = this.getAttribute('data-filter');
+        // Clone and replace to remove all old listeners
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        
+        newBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const filter = this.getAttribute('data-filter') || 'due';
+            console.log('Study button clicked with filter:', filter);
             startStudySession(filter);
         });
     });
@@ -299,8 +309,20 @@ async function editFlashcard(cardId) {
 
 // Start study session
 async function startStudySession(filter = 'due') {
+    // Prevent multiple simultaneous calls
+    if (studyMode) {
+        console.log('Already in study mode, ignoring duplicate call');
+        return;
+    }
+    
     console.log('Starting study session with filter:', filter);
     console.log('Total flashcards available:', flashcardDeck.length);
+    
+    // Ensure filter is valid
+    if (!['all', 'due', 'new'].includes(filter)) {
+        console.warn('Invalid filter:', filter, '- defaulting to "due"');
+        filter = 'due';
+    }
     
     currentFlashcardFilter = filter;
     studyMode = true;
@@ -676,7 +698,13 @@ function escapeHtml(text) {
 }
 
 // Setup event listeners when DOM is ready
+// Note: This only sets up listeners if user is already logged in on page load
+// Otherwise, initializeFlashcards() will set them up after login
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Setting up flashcard event listeners');
-    setupFlashcardEventListeners();
+    console.log('DOM Content Loaded');
+    // Only setup if user exists (e.g., page refresh while logged in)
+    if (typeof currentUser !== 'undefined' && currentUser) {
+        console.log('Setting up flashcard event listeners on DOM load');
+        setupFlashcardEventListeners();
+    }
 });
