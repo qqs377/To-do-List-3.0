@@ -115,94 +115,94 @@
        <hr>
 
         <!-- Flashcard Section -->
-        <div class="flashcard-section">
-            <h2>Flashcard System</h2>
-            
-            <!-- Card Creation -->
-            <div class="card-creation">
-                <textarea id="cardFrontInput" placeholder="Enter the question (front of card)..."></textarea>
-                <textarea id="cardBackInput" placeholder="Enter the answer (back of card)..."></textarea>
-                <button onclick="createFlashcard()">Create Flashcard</button>
+<div class="flashcard-section">
+    <h2>Flashcard System</h2>
+    
+    <!-- Card Creation -->
+    <div class="card-creation">
+        <textarea id="cardFrontInput" placeholder="Enter the question (front of card)..."></textarea>
+        <textarea id="cardBackInput" placeholder="Enter the answer (back of card)..."></textarea>
+        <button id="createFlashcardBtn">Create Flashcard</button>
+    </div>
+    
+    <hr style="border-color: rgba(255, 255, 255, 0.2);">
+    
+    <!-- Flashcard Leaderboards -->
+    <div class="flashcard-leaderboards">
+        <div class="flashcard-leaderboard">
+            <h3>Flashcard Champions</h3>
+            <div class="flashcard-leaderboard-controls">
+                <button class="flashcard-period-btn active" data-period="daily">Daily</button>
+                <button class="flashcard-period-btn" data-period="weekly">Weekly</button>
+                <button class="flashcard-period-btn" data-period="cumulative">All Time</button>
             </div>
-            
-            <hr style="border-color: rgba(255, 255, 255, 0.2);">
-            
-            <!-- Flashcard Leaderboards -->
-            <div class="flashcard-leaderboards">
-                <div class="flashcard-leaderboard">
-                    <h3>Flashcard Champions</h3>
-                    <div class="flashcard-leaderboard-controls">
-                        <button class="flashcard-period-btn active" data-period="daily">Daily</button>
-                        <button class="flashcard-period-btn" data-period="weekly">Weekly</button>
-                        <button class="flashcard-period-btn" data-period="cumulative">All Time</button>
-                    </div>
-                    <div id="flashcardLeaderboard-daily"></div>
-                    <div id="flashcardLeaderboard-weekly" style="display: none;"></div>
-                    <div id="flashcardLeaderboard-cumulative" style="display: none;"></div>
-                </div>
+            <div id="flashcardLeaderboard-daily"></div>
+            <div id="flashcardLeaderboard-weekly" style="display: none;"></div>
+            <div id="flashcardLeaderboard-cumulative" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <hr style="border-color: rgba(255, 255, 255, 0.2);">
+    
+    <!-- Library Section -->
+    <div id="flashcardLibrarySection">
+        <!-- Card Stats -->
+        <div class="card-stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalCardsCount">0</div>
+                <div class="stat-label">Total Cards</div>
             </div>
-            
-            <hr style="border-color: rgba(255, 255, 255, 0.2);">
-            
-            <!-- Library Section -->
-            <div id="flashcardLibrarySection">
-                <!-- Card Stats -->
-                <div class="card-stats">
-                    <div class="stat-item">
-                        <div class="stat-number" id="totalCardsCount">0</div>
-                        <div class="stat-label">Total Cards</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="dueCardsCount">0</div>
-                        <div class="stat-label">Due Today</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="newCardsCount">0</div>
-                        <div class="stat-label">New Cards</div>
-                    </div>
-                </div>
-                
-                <!-- Study Controls -->
-                <div class="study-controls">
-                    <button class="study-btn" onclick="startStudySession('due')">Study Due Cards</button>
-                    <button class="study-btn" onclick="startStudySession('new')">Study New Cards</button>
-                    <button class="study-btn" onclick="startStudySession('all')">Study All Cards</button>
-                </div>
-                
-                <!-- Flashcard Library -->
-                <h3 style="text-align: center; color: white; margin: 20px 0;">Card Library (Double-click to edit)</h3>
-                <div id="flashcardLibrary"></div>
+            <div class="stat-item">
+                <div class="stat-number" id="dueCardsCount">0</div>
+                <div class="stat-label">Due Today</div>
             </div>
-            
-            <!-- Study Section -->
-            <div id="flashcardStudySection" style="display: none;">
-                <div class="study-container">
-                    <div class="study-progress" id="studyProgress">Card 1 of 10</div>
-                    
-                    <div class="study-card-wrapper">
-                        <div class="study-card" id="studyCard" onclick="flipStudyCard()">
-                            <div class="card-face card-front">
-                                <div class="card-face-content" id="studyCardFront">Click to reveal answer</div>
-                            </div>
-                            <div class="card-face card-back">
-                                <div class="card-face-content" id="studyCardBack">Answer appears here</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <p style="text-align: center; color: rgba(255, 255, 255, 0.7); font-size: 14px;">Click card to flip</p>
-                    
-                    <div class="rating-buttons" id="ratingButtons" style="display: none;">
-                        <button class="rating-btn again" onclick="rateCard(0)">Again<br><small>< 1 day</small></button>
-                        <button class="rating-btn hard" onclick="rateCard(1)">Hard<br><small>1-3 days</small></button>
-                        <button class="rating-btn good" onclick="rateCard(2)">Good<br><small>3-7 days</small></button>
-                        <button class="rating-btn easy" onclick="rateCard(3)">Easy<br><small>7+ days</small></button>
-                    </div>
-                    
-                    <button class="exit-study-btn" onclick="exitStudySession()">Exit Study Session</button>
-                </div>
+            <div class="stat-item">
+                <div class="stat-number" id="newCardsCount">0</div>
+                <div class="stat-label">New Cards</div>
             </div>
         </div>
+        
+        <!-- Study Controls -->
+        <div class="study-controls">
+            <button class="study-btn" data-filter="due">Study Due Cards</button>
+            <button class="study-btn" data-filter="new">Study New Cards</button>
+            <button class="study-btn" data-filter="all">Study All Cards</button>
+        </div>
+        
+        <!-- Flashcard Library -->
+        <h3 style="text-align: center; color: white; margin: 20px 0;">Card Library (Double-click to edit)</h3>
+        <div id="flashcardLibrary"></div>
+    </div>
+    
+    <!-- Study Section -->
+    <div id="flashcardStudySection" style="display: none;">
+        <div class="study-container">
+            <div class="study-progress" id="studyProgress">Card 1 of 10</div>
+            
+            <div class="study-card-wrapper">
+                <div class="study-card" id="studyCard">
+                    <div class="card-face card-front">
+                        <div class="card-face-content" id="studyCardFront">Click to reveal answer</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="card-face-content" id="studyCardBack">Answer appears here</div>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="text-align: center; color: rgba(255, 255, 255, 0.7); font-size: 14px;">Click card to flip</p>
+            
+            <div class="rating-buttons" id="ratingButtons" style="display: none;">
+                <button class="rating-btn again" data-rating="0">Again<br><small>< 1 day</small></button>
+                <button class="rating-btn hard" data-rating="1">Hard<br><small>1-3 days</small></button>
+                <button class="rating-btn good" data-rating="2">Good<br><small>3-7 days</small></button>
+                <button class="rating-btn easy" data-rating="3">Easy<br><small>7+ days</small></button>
+            </div>
+            
+            <button class="exit-study-btn" id="exitStudyBtn">Exit Study Session</button>
+        </div>
+    </div>
+</div>
         <hr>
         
        <!-- LeetCode Leaderboard -->
