@@ -1,24 +1,24 @@
 // Flashcard System with SM-2 Algorithm
-let currentFlashcardFilter = 'all'; // 'all', 'due', 'new'
+let currentFlashcardFilter = 'all';
 let flashcardDeck = []; // Full deck of all cards
 let studyDeck = []; // Filtered deck for current study session
 let currentCardIndex = 0;
 let isFlipped = false;
 let studyMode = false;
 
-// Initialize flashcard system - called after DOM loads and user logs in
+// Initialize flashcard system - called after user logs in
 async function initializeFlashcards() {
     await loadFlashcards();
     await loadFlashcardStats();
     await ensureUserFlashcardStats();
-    setupFlashcardEventListeners();
 }
 
-// Setup all event listeners
+// Setup event listeners - called on DOMContentLoaded
 function setupFlashcardEventListeners() {
     // Create flashcard button
     const createBtn = document.getElementById('createFlashcardBtn');
     if (createBtn) {
+        createBtn.removeEventListener('click', createFlashcard);
         createBtn.addEventListener('click', createFlashcard);
     }
     
@@ -33,12 +33,14 @@ function setupFlashcardEventListeners() {
     // Exit study button
     const exitBtn = document.getElementById('exitStudyBtn');
     if (exitBtn) {
+        exitBtn.removeEventListener('click', exitStudySession);
         exitBtn.addEventListener('click', exitStudySession);
     }
     
     // Study card flip
     const studyCard = document.getElementById('studyCard');
     if (studyCard) {
+        studyCard.removeEventListener('click', flipStudyCard);
         studyCard.addEventListener('click', flipStudyCard);
     }
     
@@ -80,7 +82,7 @@ function setupFlashcardEventListeners() {
 // Ensure user has stats entry
 async function ensureUserFlashcardStats() {
     try {
-        const { data: existing, error } = await supabaseClient
+        const { data: existing } = await supabaseClient
             .from('flashcard_stats')
             .select('*')
             .eq('username', currentUser.username)
@@ -116,6 +118,7 @@ async function loadFlashcards() {
         if (error) throw error;
         
         flashcardDeck = cards || [];
+        console.log('Loaded flashcards:', flashcardDeck.length);
         await displayFlashcardLibrary();
     } catch (error) {
         console.error('Error loading flashcards:', error);
@@ -125,7 +128,10 @@ async function loadFlashcards() {
 // Display flashcard library
 async function displayFlashcardLibrary() {
     const container = document.getElementById('flashcardLibrary');
-    if (!container) return;
+    if (!container) {
+        console.log('Flashcard library container not found');
+        return;
+    }
     
     if (flashcardDeck.length === 0) {
         container.innerHTML = '<p style="text-align: center; opacity: 0.7;">No flashcards yet. Create your first card!</p>';
@@ -137,6 +143,8 @@ async function displayFlashcardLibrary() {
         .from('user_flashcard_progress')
         .select('*')
         .eq('user_id', currentUser.id);
+    
+    console.log('User progress data:', progressData);
     
     const progressMap = {};
     if (progressData) {
@@ -204,6 +212,8 @@ function updateFlashcardCounts(progressMap) {
         }
     });
     
+    console.log('Card counts - Total:', totalCards, 'Due:', dueCards, 'New:', newCards);
+    
     const totalEl = document.getElementById('totalCardsCount');
     const dueEl = document.getElementById('dueCardsCount');
     const newEl = document.getElementById('newCardsCount');
@@ -218,7 +228,10 @@ async function createFlashcard() {
     const frontInput = document.getElementById('cardFrontInput');
     const backInput = document.getElementById('cardBackInput');
     
-    if (!frontInput || !backInput) return;
+    if (!frontInput || !backInput) {
+        console.error('Input elements not found');
+        return;
+    }
     
     const front = frontInput.value.trim();
     const back = backInput.value.trim();
@@ -240,6 +253,8 @@ async function createFlashcard() {
             .single();
             
         if (error) throw error;
+        
+        console.log('Created flashcard:', data);
         
         frontInput.value = '';
         backInput.value = '';
@@ -284,6 +299,9 @@ async function editFlashcard(cardId) {
 
 // Start study session
 async function startStudySession(filter = 'due') {
+    console.log('Starting study session with filter:', filter);
+    console.log('Total flashcards available:', flashcardDeck.length);
+    
     currentFlashcardFilter = filter;
     studyMode = true;
     
@@ -292,6 +310,8 @@ async function startStudySession(filter = 'due') {
         .from('user_flashcard_progress')
         .select('*')
         .eq('user_id', currentUser.id);
+    
+    console.log('Progress data:', progressData);
     
     const progressMap = {};
     if (progressData) {
@@ -313,17 +333,23 @@ async function startStudySession(filter = 'due') {
         return false;
     });
     
+    console.log('Filtered cards for study:', studyCards.length);
+    
     if (studyCards.length === 0) {
         alert('No cards to study with this filter!');
+        studyMode = false;
         return;
     }
     
-    // Shuffle cards and store in studyDeck (don't overwrite flashcardDeck!)
+    // Shuffle cards and store in studyDeck
     studyDeck = studyCards.sort(() => Math.random() - 0.5);
     currentCardIndex = 0;
     
-    document.getElementById('flashcardLibrarySection').style.display = 'none';
-    document.getElementById('flashcardStudySection').style.display = 'block';
+    const librarySection = document.getElementById('flashcardLibrarySection');
+    const studySection = document.getElementById('flashcardStudySection');
+    
+    if (librarySection) librarySection.style.display = 'none';
+    if (studySection) studySection.style.display = 'block';
     
     showCurrentCard();
 }
@@ -338,26 +364,42 @@ async function showCurrentCard() {
     const card = studyDeck[currentCardIndex];
     isFlipped = false;
     
-    document.getElementById('studyCardFront').textContent = card.front;
-    document.getElementById('studyCardBack').textContent = card.back;
-    document.getElementById('studyCard').classList.remove('flipped');
-    document.getElementById('studyProgress').textContent = `Card ${currentCardIndex + 1} of ${studyDeck.length}`;
-    document.getElementById('ratingButtons').style.display = 'none';
+    const frontEl = document.getElementById('studyCardFront');
+    const backEl = document.getElementById('studyCardBack');
+    const cardEl = document.getElementById('studyCard');
+    const progressEl = document.getElementById('studyProgress');
+    const ratingBtns = document.getElementById('ratingButtons');
+    
+    if (frontEl) frontEl.textContent = card.front;
+    if (backEl) backEl.textContent = card.back;
+    if (cardEl) cardEl.classList.remove('flipped');
+    if (progressEl) progressEl.textContent = `Card ${currentCardIndex + 1} of ${studyDeck.length}`;
+    if (ratingBtns) ratingBtns.style.display = 'none';
+    
+    console.log('Showing card:', currentCardIndex + 1, 'of', studyDeck.length);
 }
 
 // Flip card
 function flipStudyCard() {
-    if (!studyMode) return;
+    console.log('Flip card clicked, studyMode:', studyMode, 'isFlipped:', isFlipped);
+    
+    if (!studyMode) {
+        console.log('Not in study mode');
+        return;
+    }
     
     isFlipped = !isFlipped;
     const card = document.getElementById('studyCard');
+    const ratingBtns = document.getElementById('ratingButtons');
     
     if (isFlipped) {
-        card.classList.add('flipped');
-        document.getElementById('ratingButtons').style.display = 'flex';
+        if (card) card.classList.add('flipped');
+        if (ratingBtns) ratingBtns.style.display = 'flex';
+        console.log('Card flipped to back');
     } else {
-        card.classList.remove('flipped');
-        document.getElementById('ratingButtons').style.display = 'none';
+        if (card) card.classList.remove('flipped');
+        if (ratingBtns) ratingBtns.style.display = 'none';
+        console.log('Card flipped to front');
     }
 }
 
@@ -369,10 +411,11 @@ async function rateCard(rating) {
     }
     
     const card = studyDeck[currentCardIndex];
+    console.log('Rating card:', card.id, 'with rating:', rating);
     
     try {
         // Get or create progress
-        let { data: progress, error: progressError } = await supabaseClient
+        let { data: progress } = await supabaseClient
             .from('user_flashcard_progress')
             .select('*')
             .eq('user_id', currentUser.id)
@@ -380,6 +423,7 @@ async function rateCard(rating) {
             .maybeSingle();
         
         const isNewCard = !progress || progress.repetitions === 0;
+        console.log('Is new card:', isNewCard, 'Progress:', progress);
         
         if (!progress) {
             progress = {
@@ -460,7 +504,7 @@ async function updateFlashcardStatsAfterReview(isNewCard) {
     try {
         const today = new Date().toISOString().split('T')[0];
         
-        const { data: stats, error } = await supabaseClient
+        const { data: stats } = await supabaseClient
             .from('flashcard_stats')
             .select('*')
             .eq('username', currentUser.username)
@@ -521,8 +565,12 @@ async function updateFlashcardStatsAfterReview(isNewCard) {
 // End study session
 function endStudySession() {
     studyMode = false;
-    document.getElementById('flashcardLibrarySection').style.display = 'block';
-    document.getElementById('flashcardStudySection').style.display = 'none';
+    
+    const librarySection = document.getElementById('flashcardLibrarySection');
+    const studySection = document.getElementById('flashcardStudySection');
+    
+    if (librarySection) librarySection.style.display = 'block';
+    if (studySection) studySection.style.display = 'none';
     
     alert('Study session complete! Great work! 🎉');
     loadFlashcards();
@@ -535,7 +583,7 @@ function exitStudySession() {
     }
 }
 
-// Load flashcard stats leaderboard
+// Load flashcard stats
 async function loadFlashcardStats() {
     try {
         const { data, error } = await supabaseClient
@@ -545,7 +593,6 @@ async function loadFlashcardStats() {
             
         if (error) throw error;
         
-        // Display stats (you can expand this)
         console.log('Flashcard stats loaded:', data);
         
     } catch (error) {
@@ -553,7 +600,7 @@ async function loadFlashcardStats() {
     }
 }
 
-// Load flashcard leaderboard (COMBINED: studied + reviewed)
+// Load flashcard leaderboard
 async function loadFlashcardLeaderboard() {
     const periods = ['daily', 'weekly', 'cumulative'];
     
@@ -581,7 +628,7 @@ async function updateFlashcardLeaderboard(period) {
             return;
         }
         
-        // Calculate combined count (studied + reviewed) for each user
+        // Calculate combined count
         let sortedData = data.map(user => {
             let combinedCount = 0;
             
@@ -589,7 +636,7 @@ async function updateFlashcardLeaderboard(period) {
                 combinedCount = (user.cards_studied_today || 0) + (user.cards_reviewed_today || 0);
             } else if (period === 'weekly') {
                 combinedCount = (user.cards_studied_week || 0) + (user.cards_reviewed_week || 0);
-            } else { // cumulative
+            } else {
                 combinedCount = (user.cards_studied_total || 0) + (user.cards_reviewed_total || 0);
             }
             
@@ -599,7 +646,6 @@ async function updateFlashcardLeaderboard(period) {
             };
         });
         
-        // Sort by combined count
         sortedData.sort((a, b) => b.combinedCount - a.combinedCount);
         
         let html = '';
@@ -628,3 +674,9 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+
+// Setup event listeners when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Setting up flashcard event listeners');
+    setupFlashcardEventListeners();
+});
