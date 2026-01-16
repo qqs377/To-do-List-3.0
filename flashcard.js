@@ -1,4 +1,3 @@
-// Load flashcard leaderboar
 // Flashcard System with SM-2 Algorithm
 let currentFlashcardFilter = 'all'; // 'all', 'due', 'new'
 let flashcardDeck = [];
@@ -322,4 +321,292 @@ async function startStudySession(filter = 'due') {
     currentCardIndex = 0;
     
     document.getElementById('flashcardLibrarySection').style.display = 'none';
-    document.getElementById('flashcardStudySection').
+    document.getElementById('flashcardStudySection').style.display = 'block';
+    
+    showCurrentCard();
+}
+
+// Show current card
+async function showCurrentCard() {
+    if (currentCardIndex >= flashcardDeck.length) {
+        endStudySession();
+        return;
+    }
+    
+    const card = flashcardDeck[currentCardIndex];
+    isFlipped = false;
+    
+    document.getElementById('studyCardFront').textContent = card.front;
+    document.getElementById('studyCardBack').textContent = card.back;
+    document.getElementById('studyCard').classList.remove('flipped');
+    document.getElementById('studyProgress').textContent = `Card ${currentCardIndex + 1} of ${flashcardDeck.length}`;
+    document.getElementById('ratingButtons').style.display = 'none';
+}
+
+// Flip card
+function flipStudyCard() {
+    if (!studyMode) return;
+    
+    isFlipped = !isFlipped;
+    const card = document.getElementById('studyCard');
+    
+    if (isFlipped) {
+        card.classList.add('flipped');
+        document.getElementById('ratingButtons').style.display = 'flex';
+    } else {
+        card.classList.remove('flipped');
+        document.getElementById('ratingButtons').style.display = 'none';
+    }
+}
+
+// Rate card using SM-2 algorithm
+async function rateCard(rating) {
+    if (!isFlipped) {
+        alert('Please flip the card first!');
+        return;
+    }
+    
+    const card = flashcardDeck[currentCardIndex];
+    
+    try {
+        // Get or create progress
+        let { data: progress } = await supabaseClient
+            .from('user_flashcard_progress')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .eq('flashcard_id', card.id)
+            .single();
+        
+        const isNewCard = !progress || progress.repetitions === 0;
+        
+        if (!progress) {
+            progress = {
+                user_id: currentUser.id,
+                flashcard_id: card.id,
+                easiness_factor: 2.5,
+                interval: 0,
+                repetitions: 0,
+                next_review_date: new Date().toISOString(),
+                total_reviews: 0
+            };
+        }
+        
+        // SM-2 Algorithm
+        const oldEF = progress.easiness_factor;
+        let newEF = oldEF + (0.1 - (3 - rating) * (0.08 + (3 - rating) * 0.02));
+        
+        if (newEF < 1.3) newEF = 1.3;
+        
+        let newInterval = 0;
+        let newRepetitions = progress.repetitions;
+        
+        if (rating < 2) {
+            // Failed
+            newRepetitions = 0;
+            newInterval = 0;
+        } else {
+            // Passed
+            if (newRepetitions === 0) {
+                newInterval = 1;
+            } else if (newRepetitions === 1) {
+                newInterval = 6;
+            } else {
+                newInterval = Math.round(progress.interval * newEF);
+            }
+            newRepetitions += 1;
+        }
+        
+        const nextReviewDate = new Date();
+        nextReviewDate.setDate(nextReviewDate.getDate() + newInterval);
+        
+        // Update progress
+        const updateData = {
+            easiness_factor: newEF,
+            interval: newInterval,
+            repetitions: newRepetitions,
+            next_review_date: nextReviewDate.toISOString(),
+            last_reviewed: new Date().toISOString(),
+            total_reviews: progress.total_reviews + 1
+        };
+        
+        if (progress.id) {
+            await supabaseClient
+                .from('user_flashcard_progress')
+                .update(updateData)
+                .eq('id', progress.id);
+        } else {
+            await supabaseClient
+                .from('user_flashcard_progress')
+                .insert([{ ...updateData, user_id: currentUser.id, flashcard_id: card.id }]);
+        }
+        
+        // Update stats
+        await updateFlashcardStatsAfterReview(isNewCard);
+        
+        // Next card
+        currentCardIndex++;
+        showCurrentCard();
+        
+    } catch (error) {
+        console.error('Error rating card:', error);
+        alert('Failed to save rating');
+    }
+}
+
+// Update stats after review
+async function updateFlashcardStatsAfterReview(isNewCard) {
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        
+        const { data: stats } = await supabaseClient
+            .from('flashcard_stats')
+            .select('*')
+            .eq('username', currentUser.username)
+            .single();
+        
+        if (!stats) return;
+        
+        const updates = {
+            cards_reviewed_total: stats.cards_reviewed_total + 1,
+            cards_reviewed_week: stats.cards_reviewed_week + 1,
+            last_study_date: today
+        };
+        
+        // Reset daily count if new day
+        if (stats.last_study_date !== today) {
+            updates.cards_reviewed_today = 1;
+            updates.cards_studied_today = isNewCard ? 1 : 0;
+        } else {
+            updates.cards_reviewed_today = stats.cards_reviewed_today + 1;
+            if (isNewCard) {
+                updates.cards_studied_today = stats.cards_studied_today + 1;
+            }
+        }
+        
+        if (isNewCard) {
+            updates.cards_studied_total = stats.cards_studied_total + 1;
+            updates.cards_studied_week = stats.cards_studied_week + 1;
+        }
+        
+        await supabaseClient
+            .from('flashcard_stats')
+            .update(updates)
+            .eq('username', currentUser.username);
+            
+        await loadFlashcardLeaderboard();
+        
+    } catch (error) {
+        console.error('Error updating flashcard stats:', error);
+    }
+}
+
+// End study session
+function endStudySession() {
+    studyMode = false;
+    document.getElementById('flashcardLibrarySection').style.display = 'block';
+    document.getElementById('flashcardStudySection').style.display = 'none';
+    
+    alert('Study session complete! Great work! 🎉');
+    loadFlashcards();
+}
+
+// Exit study session
+function exitStudySession() {
+    if (confirm('Are you sure you want to exit? Your progress will be saved.')) {
+        endStudySession();
+    }
+}
+
+// Load flashcard stats leaderboard
+async function loadFlashcardStats() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('flashcard_stats')
+            .select('*')
+            .order('cards_studied_total', { ascending: false });
+            
+        if (error) throw error;
+        
+        // Display stats (you can expand this)
+        console.log('Flashcard stats loaded:', data);
+        
+    } catch (error) {
+        console.error('Error loading flashcard stats:', error);
+    }
+}
+
+// Load flashcard leaderboard (COMBINED: studied + reviewed)
+async function loadFlashcardLeaderboard() {
+    const periods = ['daily', 'weekly', 'cumulative'];
+    
+    for (const period of periods) {
+        await updateFlashcardLeaderboard(period);
+    }
+}
+
+async function updateFlashcardLeaderboard(period) {
+    try {
+        const { data, error } = await supabaseClient
+            .from('flashcard_stats')
+            .select('*')
+            .order('cards_reviewed_total', { ascending: false })
+            .limit(10);
+            
+        if (error) throw error;
+        
+        const containerId = `flashcardLeaderboard-${period}`;
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = '<div class="leaderboard-empty">No data yet</div>';
+            return;
+        }
+        
+        // Calculate combined count (studied + reviewed) for each user
+        let sortedData = data.map(user => {
+            let combinedCount = 0;
+            
+            if (period === 'daily') {
+                combinedCount = (user.cards_studied_today || 0) + (user.cards_reviewed_today || 0);
+            } else if (period === 'weekly') {
+                combinedCount = (user.cards_studied_week || 0) + (user.cards_reviewed_week || 0);
+            } else { // cumulative
+                combinedCount = (user.cards_studied_total || 0) + (user.cards_reviewed_total || 0);
+            }
+            
+            return {
+                ...user,
+                combinedCount: combinedCount
+            };
+        });
+        
+        // Sort by combined count
+        sortedData.sort((a, b) => b.combinedCount - a.combinedCount);
+        
+        let html = '';
+        sortedData.forEach((user, index) => {
+            const isCurrentUser = user.username === currentUser.username;
+            
+            html += `
+                <div class="leaderboard-entry ${isCurrentUser ? 'current-user' : ''}">
+                    <span class="rank">${index + 1}</span>
+                    <span class="username">${escapeHtml(user.username)}</span>
+                    <span class="score">${user.combinedCount} cards</span>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+        
+    } catch (error) {
+        console.error('Error loading flashcard leaderboard:', error);
+    }
+}
+
+// Helper function
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
