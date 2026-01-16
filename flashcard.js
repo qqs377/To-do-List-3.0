@@ -166,6 +166,7 @@ async function displayFlashcardLibrary() {
                 <div class="card-mini-front">${escapeHtml(card.front)}</div>
                 <div class="card-mini-meta">
                     <span>By ${escapeHtml(card.created_by)}</span>
+                    ${card.edited_by ? `<span>Edited by ${escapeHtml(card.edited_by)}</span>` : ''}
                     ${progress ? `<span>Reviews: ${progress.total_reviews}</span>` : ''}
                 </div>
             </div>
@@ -266,6 +267,7 @@ async function editFlashcard(cardId) {
             .update({
                 front: newFront.trim(),
                 back: newBack.trim(),
+                edited_by: currentUser.username,
                 updated_at: new Date().toISOString()
             })
             .eq('id', cardId);
