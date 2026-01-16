@@ -273,6 +273,7 @@ function showMainApp() {
     initializeMusicPlayer();
     updateTimerDisplay();
     loadLeetCodeLeaderboard();
+    initializeFlashcards(); 
 }
 
 function logout() {
